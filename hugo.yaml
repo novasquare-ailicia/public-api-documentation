@@ -1,5 +1,6 @@
 # Hugo configuration file
-title: My Site
+title: ai_licia Public API
+baseURL: "https://your-org.github.io/public-api-documentation-v2/"
 
 # import hextra as module
 module:
@@ -18,29 +19,25 @@ markup:
 
 menu:
   main:
-    - name: Docs
-      pageRef: /docs
+    - name: Public API
+      pageRef: /docs/public-api
       weight: 1
+    - name: EventSub
+      pageRef: /docs/public-api/eventsub
+      weight: 2
+    - name: REST API
+      pageRef: /docs/public-api/rest
+      weight: 3
+    - name: SDKs
+      pageRef: /docs/sdk
+      weight: 4
     - name: About
       pageRef: /about
-      weight: 2
-    - name: Contact ↗
-      url: "https://github.com/imfing"
-      weight: 3
+      weight: 5
     - name: Search
-      weight: 4
+      weight: 6
       params:
         type: search
-    - name: GitHub
-      weight: 5
-      url: "https://github.com/imfing/hextra-starter-template"
-      params:
-        icon: github
-    - name: Twitter
-      weight: 6
-      url: "https://twitter.com/"
-      params:
-        icon: x-twitter
 
 params:
   navbar:
@@ -52,5 +49,6 @@ params:
     displayPoweredBy: true
 
   editURL:
-    enable: true
-    base: "https://github.com/imfing/hextra-starter-template/edit/main/content"
+    enable: false
+  icons:
+    radio: "circle"
