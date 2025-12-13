@@ -3,7 +3,7 @@ title: Authentication
 type: docs
 weight: 10
 prev: /docs/public-api
-next: /docs/public-api/rest
+next: /docs/public-api/openapi
 ---
 
 All public API requests use the channel API key:

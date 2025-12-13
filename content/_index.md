@@ -11,6 +11,8 @@ Server-side reactions, real-time events, and ready-made SDKs to power AI co-host
 
 {{< cards >}}
   {{< card link="docs/public-api/authentication" title="Get your API key" subtitle="One header for REST + EventSub" >}}
+  {{< card link="docs/public-api/openapi" title="OpenAPI spec" subtitle="Download or fetch spec.yaml" >}}
+  {{< card link="docs/public-api/api-reference" title="API Reference" subtitle="Interactive ReDoc view of the spec" >}}
   {{< card link="docs/public-api/rest" title="REST API" subtitle="Send contextual events; trigger reactions" >}}
   {{< card link="docs/public-api/eventsub" title="EventSub SSE" subtitle="Stream chat, AI, channel, and system events" >}}
   {{< card link="docs/sdk" title="SDKs & Libraries" subtitle="Use the npm client or other tooling" >}}

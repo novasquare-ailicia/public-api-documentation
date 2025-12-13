@@ -1,9 +1,9 @@
 ---
 title: Endpoints (summary)
 type: docs
-weight: 55
-prev: /docs/public-api/rest/getting-started
-next: /docs/public-api/rest/events
+weight: 45
+prev: /docs/public-api/rest
+next: /docs/public-api/rest/getting-started
 ---
 
 ## Summary

@@ -2,8 +2,8 @@
 title: REST API Overview
 type: docs
 weight: 40
-prev: /docs/public-api/authentication
-next: /docs/public-api/rest/getting-started
+prev: /docs/public-api/openapi
+next: /docs/public-api/rest/endpoints
 ---
 
 Use the REST API to push contextual events to ai_licia or trigger a reaction. This is the write surface; EventSub is the read surface for real-time output.

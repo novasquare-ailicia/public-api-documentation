@@ -3,7 +3,7 @@ title: POST /v1/events/generations
 type: docs
 weight: 70
 prev: /docs/public-api/rest/events
-next: /docs/public-api/sdk/ai-licia-client
+next: /docs/public-api/eventsub
 ---
 
 Trigger ai_licia to react immediately.

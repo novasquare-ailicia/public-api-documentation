@@ -2,8 +2,8 @@
 title: Getting Started
 type: docs
 weight: 50
-prev: /docs/public-api/rest/
-next: /docs/public-api/rest/endpoints
+prev: /docs/public-api/rest/endpoints
+next: /docs/public-api/rest/events
 ---
 
 ## Steps

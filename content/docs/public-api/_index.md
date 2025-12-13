@@ -16,6 +16,8 @@ The ai_licia public API exposes two surfaces:
 Start here:
 {{< cards >}}
   {{< card link="/docs/public-api/authentication" title="Authentication" subtitle="Get your API key" >}}
+  {{< card link="/docs/public-api/openapi" title="OpenAPI spec" subtitle="Download or fetch the spec.yaml" >}}
+  {{< card link="/docs/public-api/api-reference" title="API Reference" subtitle="Interactive ReDoc view" >}}
   {{< card link="/docs/public-api/rest/getting-started" title="REST Getting Started" subtitle="Send contextual events & reactions" >}}
   {{< card link="/docs/public-api/eventsub/getting-started" title="EventSub Getting Started" subtitle="Connect to the SSE stream" >}}
 {{< /cards >}}

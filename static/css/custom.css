@@ -1,0 +1,15 @@
+:root {
+  --hextra-max-page-width: 100%;
+  --hextra-max-navbar-width: 100%;
+  --hextra-max-footer-width: 100%;
+  --hx-container-6xl: 100%;
+}
+
+.redoc-wrapper {
+  width: 100%;
+}
+
+.redoc-wrapper redoc {
+  display: block;
+  width: 100%;
+}
