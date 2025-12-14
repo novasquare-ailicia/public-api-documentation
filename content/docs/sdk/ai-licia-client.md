@@ -4,6 +4,7 @@ type: docs
 weight: 80
 prev: /docs/sdk
 next: /docs/public-api
+description: Reference for the official ai_licia TypeScript/JavaScript client to send REST events, trigger generations, and stream chat SSE.
 ---
 
 TypeScript/JavaScript client for the ai_licia public API: send contextual events, trigger reactions, and consume the public chat SSE.
@@ -81,7 +82,7 @@ stream.close();
 
 ## Errors
 
-API errors throw with messages for length limits, auth, and rate limits (1 req/sec for generations).
+API errors throw with messages for length limits, auth, and rate limits (1 forced generation ~every 25s per API key).
 
 ```ts
 try {
@@ -102,4 +103,4 @@ try {
 
 Related:
 - REST API: [Getting started](/docs/public-api/rest/getting-started)
-- EventSub (read side): [Getting started](/docs/public-api/eventsub/getting-started)
+- EventSub: [Getting started](/docs/public-api/eventsub/getting-started)

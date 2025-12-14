@@ -2,6 +2,8 @@
 title: ai_licia Public API
 type: docs
 weight: 1
+description: Entry point to the ai_licia public API documentation, covering REST ingestion, EventSub streaming, and SDKs.
+summary: Quick navigation hub for ai_licia’s Public API, REST endpoints, EventSub stream, and supporting SDKs.
 ---
 
 Welcome to the ai_licia public API docs.

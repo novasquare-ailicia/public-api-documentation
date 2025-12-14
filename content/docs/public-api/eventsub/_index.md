@@ -4,6 +4,7 @@ type: docs
 weight: 10
 prev: /docs/public-api/rest
 next: /docs/public-api/eventsub/getting-started
+description: Understand ai_licia’s EventSub SSE stream for chat, AI, moderation, channel, and system events.
 ---
 
 EventSub is the single SSE stream for ai_licia’s public API. Use it to receive real-time events (chat, AI responses, moderation for AI messages, public events, join/leave, character changes). Use the REST API to send data in.

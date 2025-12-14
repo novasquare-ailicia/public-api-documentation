@@ -4,12 +4,13 @@ type: docs
 weight: 50
 prev: /docs/public-api/rest/endpoints
 next: /docs/public-api/rest/events
+description: Step-by-step guide for authenticating, sending your first context event, triggering generations, and managing chat presence via REST.
 ---
 
 ## Steps
 1) Get your API key (see [Authentication](/docs/public-api/authentication)).  
 2) Add the header: `Authorization: Bearer <API_KEY>`.  
-3) Choose: send context (`/v1/events`) or trigger reaction (`/v1/events/generations`).
+3) Choose an action: send context (`/v1/events`), trigger a reaction (`/v1/events/generations`), list/activate characters, or have ai_licia join/leave your chat.
 
 ## First request (ingest an event)
 
@@ -46,7 +47,16 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
 ```
 
 {{< callout context="warning" title="Limits" >}}
-Rate limit: 1 request per second per API key. Content limit: ~300 characters for `/generations`, ~700 characters for `/events`.
+Rate limit: 1 request every ~25 seconds per API key. Content limit: ~300 characters for `/generations`, ~700 characters for `/events`.
 {{< /callout >}}
+
+## Manage characters & chat presence
+
+- List available personas: `GET /v1/characters`
+- Activate one: `PUT /v1/characters/{characterId}/active`
+- Make ai_licia join chat: `POST /v1/streams/{channelName}`
+- Ask her to leave: `DELETE /v1/streams/{channelName}`
+
+See the dedicated docs for payloads/responses: [Send Context & Trigger Reactions](/docs/public-api/rest/events), [Character Management](/docs/public-api/rest/characters), and [Control Chat Presence](/docs/public-api/rest/streams).
 
 Next: consume outputs via [EventSub](/docs/public-api/eventsub).

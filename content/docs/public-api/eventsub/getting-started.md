@@ -4,6 +4,8 @@ type: docs
 weight: 20
 prev: /docs/public-api/eventsub
 next: /docs/public-api/eventsub/events
+description: Step-by-step instructions for authenticating and connecting to ai_licia’s EventSub SSE stream with filters and sample clients.
+summary: Learn how to authenticate, filter `types`, and listen to EventSub SSE events via curl or browser EventSource.
 ---
 
 ## Prerequisites

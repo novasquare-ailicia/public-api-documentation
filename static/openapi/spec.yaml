@@ -12,10 +12,10 @@ info:
   contact:
     email: contact@novasquare.io
 
-  version: 1.2.0
+  version: 1.3.0
 
 servers:
-  - url: https://api.getailicia.com/v1
+  - url: https://api.getailicia.com
 tags:
   - name: Event Stream
     description: Real-time event streaming endpoints
@@ -23,8 +23,150 @@ tags:
     description: Feed contextual data to ai_licia
   - name: generate
     description: Trigger a reaction from ai_licia
+  - name: characters
+    description: Manage ai_licia characters for your channel
+  - name: streams
+    description: Control ai_licia presence on your live stream chat
 paths:
-  /events:
+  /v1/characters:
+    get:
+      tags:
+        - characters
+      summary: List available characters
+      description: |
+        Returns the list of characters owned by the streamer whose API key is used in the `Authorization` header.
+
+        Each entry only includes the public metadata (identifier, display name, and short description).
+      operationId: listCharacters
+      security:
+        - api_key: [ ]
+      responses:
+        '200':
+          description: Characters available to the authenticated streamer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CharacterSummary'
+              examples:
+                default:
+                  summary: Character collection
+                  value:
+                    - id: char_123
+                      name: Captain Vibes
+                      description: Energetic persona that keeps hype levels high.
+                      isActive: true
+                    - id: char_456
+                      name: Cozy Willow
+                      description: Chill storyteller for quiet late-night streams.
+                      isActive: false
+        '401':
+          description: Unauthorized - Missing or invalid API key (no response body)
+
+
+  /v1/characters/{characterId}/active:
+    put:
+      tags:
+        - characters
+      summary: Set the active character
+      description: |
+        Marks the provided character as the active persona for the authenticated streamer.
+
+        Only characters owned by the API key owner can be activated.
+      operationId: setActiveCharacter
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          description: Identifier of the character to make active.
+          schema:
+            type: string
+      security:
+        - api_key: [ ]
+      responses:
+        '204':
+          description: Character successfully marked as active
+        '401':
+          description: Unauthorized - Missing or invalid API key (no response body)
+        '403':
+          description: Forbidden - Character does not belong to the authenticated streamer (no response body)
+        '404':
+          description: Character not found (no response body)
+
+
+  /v1/streams/{channelName}:
+    parameters:
+      - name: channelName
+        in: path
+        required: true
+        description: Channel handle the API key controls (typically your primary channel).
+        schema:
+          type: string
+    post:
+      tags:
+        - streams
+      summary: Request ai_licia to join chat
+      description: |
+        Requests ai_licia to join the specified channel. The call waits up to 10 seconds for the confirmation event
+        and returns the resulting join status.
+      operationId: joinStreamPresence
+      security:
+        - api_key: [ ]
+      responses:
+        '200':
+          description: Join request accepted; payload describes the final status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinChannelResponse'
+              examples:
+                joined:
+                  summary: Successful join
+                  value:
+                    success: true
+                    message: AI successfully joined channel
+                    joinedAt: 1739982392000
+                    channelId: ch_123
+                already_present:
+                  summary: Already joined
+                  value:
+                    success: true
+                    message: AI already in channel
+                    alreadyJoined: true
+                timed_out:
+                  summary: Timed out waiting for confirmation
+                  value:
+                    success: false
+                    message: Join request sent but AI join confirmation timed out after 10 seconds
+                    timeout: true
+                    joinRequestId: req_123
+        '401':
+          description: Unauthorized - Missing or invalid API key (no response body)
+        '403':
+          description: Forbidden - Channel not associated with the API key or subscription missing (no response body)
+        '404':
+          description: Channel not found for the API key owner (no response body)
+    delete:
+      tags:
+        - streams
+      summary: Request ai_licia to leave chat
+      description: |
+        Sends a leave request for the specified channel. The request is processed asynchronously.
+      operationId: leaveStreamPresence
+      security:
+        - api_key: [ ]
+      responses:
+        '202':
+          description: Leave request accepted (no response body)
+        '401':
+          description: Unauthorized - Missing or invalid API key (no response body)
+        '403':
+          description: Forbidden - Channel not associated with the API key (no response body)
+        '404':
+          description: Channel not found for the API key owner (no response body)
+
+  /v1/events:
     post:
       tags:
         - events
@@ -53,7 +195,7 @@ paths:
 
 
 
-  /events/generations:
+  /v1/events/generations:
     post:
       tags:
         - generate
@@ -157,7 +299,7 @@ paths:
           description: Streamer or channel not found for provided API key (no response body)
         '500':
           description: Internal Server Error (no response body)
-  /eventsub/stream:
+  /v1/eventsub/stream:
     get:
       summary: Unified EventSub Stream
       description: |
@@ -316,6 +458,63 @@ components:
           example: "Plane landed succesful"
           description: The data you want ai_licia to react to with her generation.
           maxLength: 300
+    CharacterSummary:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - isActive
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the character.
+          example: char_123
+        name:
+          type: string
+          description: Display name of the character.
+          example: Captain Vibes
+        description:
+          type: string
+          description: Short public description of the character persona.
+          example: Energetic hype persona that keeps the crowd excited.
+        isActive:
+          type: boolean
+          description: Indicates whether this character is currently active for the streamer.
+    JoinChannelResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the request was successful.
+        message:
+          type: string
+          description: Human readable status message.
+        alreadyJoined:
+          type: boolean
+          description: True when ai_licia was already present in the channel.
+        requiresSubscription:
+          type: boolean
+          description: True when the join request is blocked because the account has no credits or subscription.
+        timeout:
+          type: boolean
+          description: True when confirmation was not received within 10 seconds.
+        joinedAt:
+          type: integer
+          format: int64
+          description: Epoch milliseconds when the AI joined, if known.
+          nullable: true
+        channelId:
+          type: string
+          description: Identifier of the channel that was joined.
+          nullable: true
+        joinRequestId:
+          type: string
+          description: Identifier of the join request emitted to the orchestrator.
+          nullable: true
     EventSubChannelRef:
       type: object
       required:

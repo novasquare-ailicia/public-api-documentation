@@ -1,6 +1,8 @@
 ---
 title: ai_licia API & SDKs
 toc: false
+description: Official ai_licia REST, EventSub, and SDK documentation for building AI co-host experiences.
+summary: Overview of all ai_licia API surfaces, including REST ingestion, EventSub streaming, and SDKs to build AI co-hosts.
 ---
 
 # Build with ai_licia’s public API

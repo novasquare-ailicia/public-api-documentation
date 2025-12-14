@@ -3,13 +3,15 @@ title: Public API Overview
 type: docs
 weight: 5
 next: /docs/public-api/authentication
+description: Overview of ai_licia’s public REST and EventSub APIs with authentication, OpenAPI specs, and quick starts.
+summary: Learn how to authenticate, fetch the OpenAPI spec, and navigate ai_licia’s REST and EventSub offerings.
 ---
 
 The ai_licia public API exposes two surfaces:
 
 {{< cards >}}
-  {{< card link="/docs/public-api/rest" title="REST (write)" subtitle="Send contextual events; trigger reactions" >}}
-  {{< card link="/docs/public-api/eventsub" title="EventSub (read)" subtitle="Real-time SSE for chat, AI, channel, system" >}}
+  {{< card link="/docs/public-api/rest" title="REST" subtitle="Send contextual events; trigger reactions" >}}
+  {{< card link="/docs/public-api/eventsub" title="EventSub" subtitle="Real-time SSE for chat, AI, channel, system" >}}
   {{< card link="/docs/sdk" title="SDKs" subtitle="Use the npm client or other libraries" >}}
 {{< /cards >}}
 

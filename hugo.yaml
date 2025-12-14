@@ -31,23 +31,52 @@ menu:
     - name: SDKs
       pageRef: /docs/sdk
       weight: 4
-    - name: About
-      pageRef: /about
+    - name: Get ai_licia
+      pageRef: https://www.getailicia.com
       weight: 5
     - name: Search
       weight: 6
       params:
         type: search
 
+services:
+  googleAnalytics:
+    ID: G-7E3H4JLBKD
+
+outputs:
+  home: [html, llms]
+  page: [html]
+  section: [html, rss]
+
 params:
+  description: "Official ai_licia public API documentation covering REST ingestion, EventSub SSE, and client SDKs."
+  keywords:
+    - ai_licia
+    - ai companion
+    - REST API
+    - EventSub
+    - streaming tools
+  author: "ai_licia"
+  social:
+    image: /images/logo-dark.svg
   navbar:
     displayTitle: true
-    displayLogo: false
-
+    displayLogo: true
+    logo:
+      path: images/logo.svg
+      dark: images/logo-dark.svg
+      link: /
+      width: 27
+      height: 27
+  # Display the last modification date
+  displayUpdatedDate: true
+  dateFormat: "January 2, 2006"
   footer:
     displayCopyright: false
     displayPoweredBy: true
-
+  page:
+    # full (100%), wide (90rem), normal (1280px)
+    width: full
   editURL:
     enable: false
   icons:

@@ -4,6 +4,8 @@ type: docs
 weight: 30
 prev: /docs/public-api/eventsub/getting-started
 next: /docs/public-api/eventsub/legacy
+description: Complete EventSub reference detailing the envelope structure, event keys, and payload definitions for ai_licia realtime data.
+summary: Explore the EventSub envelope plus payload schemas for chat, AI messages, moderation, channel events, system notifications, and character updates.
 ---
 
 ## Envelope
