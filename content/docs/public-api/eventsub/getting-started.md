@@ -64,7 +64,3 @@ es.addEventListener('system.ping', () => {
 {{< callout context="info" title="Framing" >}}
 SSE `event` names match the `type` field in the envelope (e.g. `chat.message`). A `system.ping` is emitted periodically to keep the connection alive.
 {{< /callout >}}
-
-{{< callout context="warning" title="TTS & thoughts" >}}
-TTS audio remains on the dedicated `/tts/{userId}/{browserKey}` SSE; EventSub only carries TTS metadata. No raw AI thoughts are emitted—only humanized reasoning.
-{{< /callout >}}

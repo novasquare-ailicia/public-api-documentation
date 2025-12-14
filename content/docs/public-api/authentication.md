@@ -18,10 +18,6 @@ Authorization: Bearer <API_KEY>
 
 ![API key screenshot](/images/api_key.png)
 
-### Where it’s used
-- REST endpoints: `/v1/events`, `/v1/events/generations`
-- EventSub SSE: `/v1/eventsub/stream`
-
 Next:
 - Send data: [REST Getting Started](/docs/public-api/rest/getting-started)
 - Receive data: [EventSub Getting Started](/docs/public-api/eventsub/getting-started)
