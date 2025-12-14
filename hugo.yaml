@@ -1,6 +1,6 @@
 # Hugo configuration file
 title: ai_licia Public API
-baseURL: "https://your-org.github.io/public-api-documentation-v2/"
+baseURL: "https://docs.getailicia.com/"
 
 # import hextra as module
 module:
