@@ -11,7 +11,7 @@ Download or inspect the OpenAPI specification for the public API.
 - Download YAML: [spec.yaml](/openapi/spec.yaml)
 - Fetch via curl:
 ```bash
-curl -L https://your-org.github.io/public-api-documentation-v2/openapi/spec.yaml -o spec.yaml
+curl -L https://docs.getailicia.com/openapi/spec.yaml -o spec.yaml
 ```
 
 You can load this file in Swagger UI/ReDoc locally, or point your API client generator to the URL above.
