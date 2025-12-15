@@ -1,5 +1,5 @@
 ---
-title: Endpoints (summary)
+title: Endpoints Overview
 type: docs
 weight: 45
 prev: /docs/public-api/rest
