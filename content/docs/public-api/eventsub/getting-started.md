@@ -32,8 +32,6 @@ Authorization: Bearer <API_KEY>
 | --- | --- | --- |
 | `types` | Comma-separated event keys to include | `types=chat.message,ai.tts.generated` |
 | `channelId` | Target a specific channel (if the key has multiple) | `channelId=ch_123` |
-| `cursor` | Opaque resume token (future replay) | `cursor=abc123` |
-
 ## Quick start (curl)
 
 ```bash
