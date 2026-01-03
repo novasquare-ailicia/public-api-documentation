@@ -31,7 +31,7 @@ All events share the same envelope. Fields marked optional may be omitted if not
 }
 ```
 
-SSE frames use `event: <type>` and `data: <envelope JSON>`. Pings use `event: system.ping`.
+SSE frames use `event: <type>` and `data: <envelope JSON>`. Keep-alive comments may be sent periodically.
 
 Quick jump:
 - [`chat.message`](#chatmessage)
@@ -45,7 +45,6 @@ Quick jump:
 - [`system.join`](#systemjoin)
 - [`system.left`](#systemleft)
 - [`character.updated`](#characterupdated)
-- [`system.ping`](#systemping)
 
 ## Event catalog
 
@@ -62,7 +61,6 @@ Quick jump:
 | `system.join` | AI joined the channel. | channelId, channelName, sentDateTime |
 | `system.left` | AI left the channel. | channelId, channelName, sentDateTime |
 | `character.updated` | Active character changed. | characterId, displayName, sentDateTime |
-| `system.ping` | Keep-alive ping. | pingId |
 
 ## Schemas
 Examples below are shown as full envelopes: `type` matches the SSE event name, and `payload` carries the event-specific body.
@@ -337,21 +335,6 @@ SSE `event` equals the `type` field in the envelope (e.g. `chat.message`).
     "characterId": "char_456",
     "displayName": "Licia Nova",
     "sentDateTime": "2025-02-18T21:19:30Z"
-  }
-}
-```
-
-### system.ping
-- `pingId`: sequential identifier  
-
-```json
-{
-  "id": "evt_ping_1",
-  "type": "system.ping",
-  "timestamp": "2025-02-18T21:20:00Z",
-  "channel": { "id": "ch_123", "name": "mychannel", "platform": "TWITCH" },
-  "payload": {
-    "pingId": 123
   }
 }
 ```

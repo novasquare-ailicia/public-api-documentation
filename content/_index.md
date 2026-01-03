@@ -25,7 +25,7 @@ Server-side reactions, real-time events, and ready-made SDKs to power AI co-host
 {{< cards >}}
   {{< card link="docs/public-api/rest/getting-started" title="Context ingestion" subtitle="Push game/telemetry/state (700 chars)" >}}
   {{< card link="docs/public-api/rest/endpoints" title="Instant reactions" subtitle="Trigger ai_licia responses (300 chars)" >}}
-  {{< card link="docs/public-api/eventsub/events" title="Unified events" subtitle="Chat, AI messages, moderation, channel events, system pings" >}}
+  {{< card link="docs/public-api/eventsub/events" title="Unified events" subtitle="Chat, AI messages, moderation, channel events, system events" >}}
   {{< card link="docs/sdk/ai-licia-client" title="npm: ai_licia-client" subtitle="Typed JS/TS client for REST and chat SSE" >}}
 {{< /cards >}}
 

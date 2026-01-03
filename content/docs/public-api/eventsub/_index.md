@@ -15,7 +15,7 @@ EventSub is the single SSE stream for ai_licia’s public API. Use it to receive
 | --- | --- |
 | Single stream | All events over one SSE; filter via `types` |
 | Auth | Channel API key |
-| Coverage | Chat + AI, channel/public events, system join/leave, character updates, pings |
+| Coverage | Chat + AI, channel/public events, system join/leave, character updates |
 | TTS | Metadata only; audio stays on `/tts/{userId}/{browserKey}` |
 | Writes | Send data via [REST API](/docs/public-api/rest) |
 
@@ -26,7 +26,7 @@ EventSub is the single SSE stream for ai_licia’s public API. Use it to receive
 | Chat | `chat.message`, `chat.ai_message`, `chat.first_message` |
 | AI | `ai.thoughts`, `ai.tts.generated`, `ai.moderation` |
 | Channel | `channel.event`, `api.event` |
-| System | `system.join`, `system.left`, `system.ping` |
+| System | `system.join`, `system.left` |
 | Character | `character.updated` |
 
 Quick links:

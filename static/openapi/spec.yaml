@@ -359,18 +359,6 @@ paths:
                       isVip: false
                       isModerator: false
                       sentDateTime: '2025-02-18T21:15:22Z'
-                ping:
-                  summary: Keep-alive ping
-                  value:
-                    id: evt_ping_1
-                    type: system.ping
-                    timestamp: '2025-02-18T21:20:00Z'
-                    channel:
-                      id: ch_123
-                      name: mychannel
-                      platform: TWITCH
-                    payload:
-                      pingId: 123
         '401':
           description: Unauthorized - Missing or invalid API key (no response body)
         '403':
@@ -570,7 +558,6 @@ components:
             - system.join
             - system.left
             - character.updated
-            - system.ping
         version:
           type: string
           description: Optional schema version for the payload.
@@ -604,7 +591,6 @@ components:
         - $ref: '#/components/schemas/EventSubSystemJoinEvent'
         - $ref: '#/components/schemas/EventSubSystemLeftEvent'
         - $ref: '#/components/schemas/EventSubCharacterUpdatedEvent'
-        - $ref: '#/components/schemas/EventSubSystemPingEvent'
       discriminator:
         propertyName: type
         mapping:
@@ -619,7 +605,6 @@ components:
           system.join: '#/components/schemas/EventSubSystemJoinEvent'
           system.left: '#/components/schemas/EventSubSystemLeftEvent'
           character.updated: '#/components/schemas/EventSubCharacterUpdatedEvent'
-          system.ping: '#/components/schemas/EventSubSystemPingEvent'
     EventSubChatMessageEvent:
       allOf:
         - $ref: '#/components/schemas/EventSubEnvelopeBase'
@@ -741,17 +726,6 @@ components:
                 - character.updated
             payload:
               $ref: '#/components/schemas/EventSubCharacterUpdatedPayload'
-    EventSubSystemPingEvent:
-      allOf:
-        - $ref: '#/components/schemas/EventSubEnvelopeBase'
-        - type: object
-          properties:
-            type:
-              type: string
-              enum:
-                - system.ping
-            payload:
-              $ref: '#/components/schemas/EventSubSystemPingPayload'
     EventSubChatMessagePayload:
       type: object
       required:
@@ -1053,16 +1027,6 @@ components:
         sentDateTime:
           type: string
           format: date-time
-    EventSubSystemPingPayload:
-      type: object
-      required:
-        - pingId
-      properties:
-        pingId:
-          type: integer
-          format: int64
-
-
   requestBodies:
     Event:
       description: Pet object that needs to be added to the store

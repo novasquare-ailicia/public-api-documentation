@@ -52,13 +52,10 @@ es.addEventListener('chat.message', (evt) => {
   console.log('New chat message', envelope.payload);
 });
 
-es.addEventListener('system.ping', () => {
-  // keep-alive, no action required
-});
 ```
 
 ## Notes
 
 {{< callout context="info" title="Framing" >}}
-SSE `event` names match the `type` field in the envelope (e.g. `chat.message`). A `system.ping` is emitted periodically to keep the connection alive.
+SSE `event` names match the `type` field in the envelope (e.g. `chat.message`). Keep-alive comments may be sent periodically.
 {{< /callout >}}
