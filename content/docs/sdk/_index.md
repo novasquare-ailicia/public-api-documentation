@@ -11,4 +11,4 @@ Official and community libraries for integrating with the ai_licia public API. S
 
 | Library | Description | Link |
 | --- | --- | --- |
-| ai_licia-client (npm) | TypeScript/JS client for REST and chat SSE | [Docs](/docs/sdk/ai-licia-client) • [npm](https://www.npmjs.com/package/ai_licia-client) |
+| ai_licia-client (npm) | TypeScript/JS client for REST and EventSub SSE (plus legacy chat SSE) | [Docs](/docs/sdk/ai-licia-client) - [npm](https://www.npmjs.com/package/ai_licia-client) |
