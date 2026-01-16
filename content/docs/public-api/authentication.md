@@ -18,6 +18,15 @@ Authorization: Bearer <API_KEY>
 
 ![API key screenshot](/images/api_key.png)
 
+### Local WebSocket consent
+If you are building a local integration, the dashboard app can return the **channel API key** after the user approves your request. Use it the same way:
+
+```shell
+Authorization: Bearer <API_KEY>
+```
+
+See [Local WebSocket](/docs/public-api/local-websocket) for the consent flow.
+
 Next:
 - Send data: [REST Getting Started](/docs/public-api/rest/getting-started)
 - Receive data: [EventSub Getting Started](/docs/public-api/eventsub/getting-started)
