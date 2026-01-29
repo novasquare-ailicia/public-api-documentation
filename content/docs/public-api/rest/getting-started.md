@@ -40,7 +40,14 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
     "eventType": "GAME_EVENT",
     "data": {
       "channelName": "mychannel",
-      "content": "Jellab just landed a triple kill with Yasuo."
+      "content": "Jellab just landed a triple kill with Yasuo.",
+      "features": {
+        "vision": false,
+        "web_search": false,
+        "commands": false,
+        "memory": false,
+        "tts": true
+      }
     }
   }'
 '

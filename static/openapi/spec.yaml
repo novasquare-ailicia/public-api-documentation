@@ -446,6 +446,33 @@ components:
           example: "Plane landed succesful"
           description: The data you want ai_licia to react to with her generation.
           maxLength: 300
+        features:
+          $ref: '#/components/schemas/GenerationFeatures'
+          description: Optional feature flags to enable extra processing for this generation request.
+    GenerationFeatures:
+      type: object
+      description: Feature toggles for the generation pipeline. Any omitted field uses its default value.
+      properties:
+        vision:
+          type: boolean
+          description: Enable vision processing for the event when applicable.
+          default: false
+        web_search:
+          type: boolean
+          description: Enable web search processing for the event when applicable.
+          default: false
+        commands:
+          type: boolean
+          description: Enable command execution processing for the event when applicable.
+          default: false
+        memory:
+          type: boolean
+          description: Enable memory processing for the event when applicable.
+          default: false
+        tts:
+          type: boolean
+          description: Enable text-to-speech generation when applicable (subject to existing TTS rules).
+          default: true
     CharacterSummary:
       type: object
       required:
@@ -503,6 +530,15 @@ components:
           type: string
           description: Identifier of the join request emitted to the orchestrator.
           nullable: true
+    Platform:
+      type: string
+      description: Source platform (e.g. TWITCH, TIKTOK, KICK, YOUTUBE).
+      enum:
+        - TWITCH
+        - TIKTOK
+        - KICK
+        - YOUTUBE
+      example: TWITCH
     EventSubChannelRef:
       type: object
       required:
@@ -519,9 +555,7 @@ components:
           description: Public channel handle.
           example: mychannel
         platform:
-          type: string
-          description: Source platform for the channel (e.g. TWITCH, KICK, YOUTUBE).
-          example: TWITCH
+          $ref: '#/components/schemas/Platform'
     EventSubStreamRef:
       type: object
       required:
@@ -553,6 +587,8 @@ components:
             - ai.thoughts
             - ai.tts.generated
             - channel.event
+            - channel.go_live
+            - channel.go_offline
             - ai.moderation
             - api.event
             - system.join
@@ -586,6 +622,8 @@ components:
         - $ref: '#/components/schemas/EventSubAiThoughtsEvent'
         - $ref: '#/components/schemas/EventSubAiTtsGeneratedEvent'
         - $ref: '#/components/schemas/EventSubChannelEvent'
+        - $ref: '#/components/schemas/EventSubChannelGoLiveEvent'
+        - $ref: '#/components/schemas/EventSubChannelGoOfflineEvent'
         - $ref: '#/components/schemas/EventSubAiModerationEvent'
         - $ref: '#/components/schemas/EventSubApiEvent'
         - $ref: '#/components/schemas/EventSubSystemJoinEvent'
@@ -600,6 +638,8 @@ components:
           ai.thoughts: '#/components/schemas/EventSubAiThoughtsEvent'
           ai.tts.generated: '#/components/schemas/EventSubAiTtsGeneratedEvent'
           channel.event: '#/components/schemas/EventSubChannelEvent'
+          channel.go_live: '#/components/schemas/EventSubChannelGoLiveEvent'
+          channel.go_offline: '#/components/schemas/EventSubChannelGoOfflineEvent'
           ai.moderation: '#/components/schemas/EventSubAiModerationEvent'
           api.event: '#/components/schemas/EventSubApiEvent'
           system.join: '#/components/schemas/EventSubSystemJoinEvent'
@@ -671,6 +711,28 @@ components:
                 - channel.event
             payload:
               $ref: '#/components/schemas/EventSubChannelEventPayload'
+    EventSubChannelGoLiveEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventSubEnvelopeBase'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - channel.go_live
+            payload:
+              $ref: '#/components/schemas/EventSubChannelGoLivePayload'
+    EventSubChannelGoOfflineEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventSubEnvelopeBase'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - channel.go_offline
+            payload:
+              $ref: '#/components/schemas/EventSubChannelGoOfflinePayload'
     EventSubAiModerationEvent:
       allOf:
         - $ref: '#/components/schemas/EventSubEnvelopeBase'
@@ -753,9 +815,7 @@ components:
           description: ISO language code detected for the message.
           example: en
         platform:
-          type: string
-          description: Source platform for the message (e.g. TWITCH, YOUTUBE).
-          example: TWITCH
+          $ref: '#/components/schemas/Platform'
         isSubscriber:
           type: boolean
         isVip:
@@ -921,6 +981,22 @@ components:
         message:
           type: string
           description: Optional message associated with the channel event.
+        sentDateTime:
+          type: string
+          format: date-time
+    EventSubChannelGoLivePayload:
+      type: object
+      required:
+        - sentDateTime
+      properties:
+        sentDateTime:
+          type: string
+          format: date-time
+    EventSubChannelGoOfflinePayload:
+      type: object
+      required:
+        - sentDateTime
+      properties:
         sentDateTime:
           type: string
           format: date-time

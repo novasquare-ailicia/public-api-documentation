@@ -99,6 +99,25 @@ Request a specific reaction when you need ai_licia to speak now.
   - `eventType` (string): use any label, e.g. `CHAT_TRIGGER`
   - `data.channelName` (string): channel tied to your API key
   - `data.content` (string, max ~300 chars): the prompt for ai_licia
+  - `data.features` (object, optional): per-request feature flags
+    - `vision` (boolean, default `false`)
+    - `web_search` (boolean, default `false`)
+    - `commands` (boolean, default `false`)
+    - `memory` (boolean, default `false`)
+    - `tts` (boolean, default `true`, still governed by existing TTS rules)
+
+**Latency impact**
+- Features run in parallel, so the total slowdown is driven by the slowest enabled feature.
+- Approximate overhead when enabled:
+  - `web_search`: +1.0s
+  - `commands`: +1.2s
+  - `memory`: +0.8s
+  - `vision`: +7.0s
+- `tts` does not delay posting the response, but audio delivery typically takes 500ms to 1s to generate and receive.
+
+{{< callout context="info" title="Defaults" >}}
+Omitting `data.features` (or any individual flag) uses the default values: all feature flags are `false` except `tts`, which defaults to `true` and still follows the existing TTS rules.
+{{< /callout >}}
 
 **Responses**
 - `200 OK` — request accepted
@@ -114,7 +133,14 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
     "eventType": "CHAT_TRIGGER",
     "data": {
       "channelName": "mychannel",
-      "content": "Tell chat the boss is enraged and we need focus now!"
+      "content": "Tell chat the boss is enraged and we need focus now!",
+      "features": {
+        "vision": false,
+        "web_search": true,
+        "commands": false,
+        "memory": true,
+        "tts": true
+      }
     }
   }'
 '

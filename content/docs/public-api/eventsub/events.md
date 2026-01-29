@@ -40,6 +40,8 @@ Quick jump:
 - [`ai.thoughts`](#aithoughts)
 - [`ai.tts.generated`](#aittsgenerated)
 - [`channel.event`](#channelevent)
+- [`channel.go_live`](#channelgo_live)
+- [`channel.go_offline`](#channelgo_offline)
 - [`ai.moderation`](#aimoderation)
 - [`api.event`](#apievent)
 - [`system.join`](#systemjoin)
@@ -56,6 +58,8 @@ Quick jump:
 | `ai.thoughts` | Humanized AI reasoning (raw thoughts are not emitted). | reasoning, shouldAnswer, compiledFromMultiple, sentDateTime |
 | `ai.tts.generated` | TTS job metadata for an AI message. | messageId, textToSpeech, username, audioFormat, generationTimeMs, audioSizeBytes, ttsStreamUrl |
 | `channel.event` | Platform events (subs, cheers, raids, follows, etc.). | eventType, username, gifter, count, value, raidViewers, message, sentDateTime |
+| `channel.go_live` | Channel went live. | sentDateTime |
+| `channel.go_offline` | Channel went offline. | sentDateTime |
 | `ai.moderation` | AI-authored message moderation result. | messageId, username, originalMessage, isAppropriate, categoriesScore, moderationEnabled, sentDateTime |
 | `api.event` | Custom public event sent via the API. | eventType, content, shouldGenerate, ttl, expiresAt |
 | `system.join` | AI joined the channel. | channelId, channelName, sentDateTime |
@@ -74,7 +78,7 @@ SSE `event` equals the `type` field in the envelope (e.g. `chat.message`).
 - `username`: chatter username  
 - `message`: text content  
 - `language`: ISO language code  
-- `platform`: source platform (e.g. TWITCH, YOUTUBE)  
+- `platform`: source platform (TWITCH, TIKTOK, KICK, YOUTUBE)  
 - `isSubscriber`, `isVip`, `isModerator`: booleans  
 - `sentDateTime`: ISO-8601 timestamp  
 
@@ -225,6 +229,38 @@ SSE `event` equals the `type` field in the envelope (e.g. `chat.message`).
     "raidViewers": null,
     "message": "Thanks for the stream!",
     "sentDateTime": "2025-02-18T21:17:00Z"
+  }
+}
+```
+
+### channel.go_live
+- `sentDateTime`: ISO-8601 timestamp  
+
+```json
+{
+  "id": "evt_live_1",
+  "type": "channel.go_live",
+  "timestamp": "2025-02-18T21:12:00Z",
+  "channel": { "id": "ch_123", "name": "mychannel", "platform": "TWITCH" },
+  "stream": { "id": "st_456" },
+  "payload": {
+    "sentDateTime": "2025-02-18T21:12:00Z"
+  }
+}
+```
+
+### channel.go_offline
+- `sentDateTime`: ISO-8601 timestamp  
+
+```json
+{
+  "id": "evt_offline_1",
+  "type": "channel.go_offline",
+  "timestamp": "2025-02-18T22:05:00Z",
+  "channel": { "id": "ch_123", "name": "mychannel", "platform": "TWITCH" },
+  "stream": { "id": "st_456" },
+  "payload": {
+    "sentDateTime": "2025-02-18T22:05:00Z"
   }
 }
 ```
