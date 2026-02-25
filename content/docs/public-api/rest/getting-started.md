@@ -61,9 +61,10 @@ Rate limit: 1 request every ~25 seconds per API key. Content limit: ~300 charact
 
 - List available personas: `GET /v1/characters`
 - Activate one: `PUT /v1/characters/{characterId}/active`
-- Make ai_licia join chat: `POST /v1/streams/{channelName}`
+- Read channel runtime status: `GET /v1/channels/status`
+- Make ai_licia join chat: `POST /v1/streams/{channelName}` (`mode=LIVE|TEST`)
 - Ask her to leave: `DELETE /v1/streams/{channelName}`
 
-See the dedicated docs for payloads/responses: [Send Context & Trigger Reactions](/docs/public-api/rest/events), [Character Management](/docs/public-api/rest/characters), and [Control Chat Presence](/docs/public-api/rest/streams).
+See the dedicated docs for payloads/responses: [Send Context & Trigger Reactions](/docs/public-api/rest/events), [Character Management](/docs/public-api/rest/characters), [Channel Runtime Status](/docs/public-api/rest/channels), and [Control Chat Presence](/docs/public-api/rest/streams).
 
 Next: consume outputs via [EventSub](/docs/public-api/eventsub).

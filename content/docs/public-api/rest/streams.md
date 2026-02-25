@@ -2,9 +2,9 @@
 title: Control Chat Presence
 type: docs
 weight: 76
-prev: /docs/public-api/rest/characters
+prev: /docs/public-api/rest/channels
 next: /docs/public-api/eventsub
-description: Use POST/DELETE /v1/streams/{channelName} to ask ai_licia to join or leave your chat with proper requirements and sample responses.
+description: Use POST/DELETE /v1/streams/{channelName} to control ai_licia chat presence.
 ---
 
 Use these endpoints to ask ai_licia to join or leave one of the channels linked to your API key.
@@ -23,9 +23,14 @@ Sends a join request and waits up to 10 seconds for the confirmation event.
 - Headers: `Authorization: Bearer <API_KEY>`
 - Path parameters:
   - `channelName`: handle of a channel you control (e.g. your Twitch username)
+- Query parameters:
+  - `mode` (optional): `LIVE` (default) or `TEST`
+    - `LIVE`: standard production join
+    - `TEST`: demo/test join flow (same behavior as dashboard test join)
 
 **Responses**
 - `200 OK` with a `JoinChannelResponse` payload indicating success, already-joined status, or timeout
+- `400 Bad Request` if `mode` is invalid
 - `401 Unauthorized` if the API key is invalid
 - `403 Forbidden` if the channel is not associated with the key or no subscription/credits are available
 - `404 Not Found` if the channel cannot be resolved for the streamer
@@ -64,6 +69,22 @@ Timeout example:
   "message": "Join request sent but AI join confirmation timed out after 10 seconds",
   "timeout": true,
   "joinRequestId": "req_xyz"
+}
+```
+
+Test-mode join example:
+
+```bash
+curl -X POST "https://api.getailicia.com/v1/streams/mychannel?mode=TEST" \
+  -H "Authorization: Bearer ${API_KEY}"
+```
+
+```json
+{
+  "success": true,
+  "message": "AI successfully joined channel in test mode",
+  "joinedAt": 1739982392000,
+  "channelId": "ch_123"
 }
 ```
 

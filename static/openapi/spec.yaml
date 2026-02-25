@@ -25,6 +25,8 @@ tags:
     description: Trigger a reaction from ai_licia
   - name: characters
     description: Manage ai_licia characters for your channel
+  - name: channels
+    description: Read runtime status for channels controlled by your API key
   - name: streams
     description: Control ai_licia presence on your live stream chat
 paths:
@@ -95,6 +97,41 @@ paths:
           description: Character not found (no response body)
 
 
+  /v1/channels/status:
+    get:
+      tags:
+        - channels
+      summary: Get channel runtime status
+      description: |
+        Returns runtime status for channels controlled by the API key owner.
+        Each entry includes only channel name, primary flag, live status, and AI-in-chat status.
+      operationId: getChannelRuntimeStatus
+      security:
+        - api_key: [ ]
+      responses:
+        '200':
+          description: Runtime status for all accessible channels.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicChannelStatus'
+              examples:
+                default:
+                  summary: Example status payload
+                  value:
+                    - channelName: mychannel
+                      isPrimary: true
+                      isLive: true
+                      isAiInChat: true
+                    - channelName: mysecondchannel
+                      isPrimary: false
+                      isLive: false
+                      isAiInChat: false
+        '401':
+          description: Unauthorized - Missing or invalid API key (no response body)
+
   /v1/streams/{channelName}:
     parameters:
       - name: channelName
@@ -111,6 +148,13 @@ paths:
         Requests ai_licia to join the specified channel. The call waits up to 10 seconds for the confirmation event
         and returns the resulting join status.
       operationId: joinStreamPresence
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: Join mode. Use `LIVE` for normal joins, or `TEST` to run a demo-style test join.
+          schema:
+            $ref: '#/components/schemas/PublicJoinMode'
       security:
         - api_key: [ ]
       responses:
@@ -141,6 +185,15 @@ paths:
                     message: Join request sent but AI join confirmation timed out after 10 seconds
                     timeout: true
                     joinRequestId: req_123
+                test_mode_joined:
+                  summary: Successful test-mode join
+                  value:
+                    success: true
+                    message: AI successfully joined channel in test mode
+                    joinedAt: 1739982392000
+                    channelId: ch_123
+        '400':
+          description: Invalid mode value (no response body)
         '401':
           description: Unauthorized - Missing or invalid API key (no response body)
         '403':
@@ -530,6 +583,35 @@ components:
           type: string
           description: Identifier of the join request emitted to the orchestrator.
           nullable: true
+    PublicJoinMode:
+      type: string
+      description: Join mode for chat presence requests.
+      enum:
+        - LIVE
+        - TEST
+      default: LIVE
+      example: LIVE
+    PublicChannelStatus:
+      type: object
+      required:
+        - channelName
+        - isPrimary
+        - isLive
+        - isAiInChat
+      properties:
+        channelName:
+          type: string
+          description: Public channel handle.
+          example: mychannel
+        isPrimary:
+          type: boolean
+          description: True if this is the account's primary channel.
+        isLive:
+          type: boolean
+          description: True if the channel is currently live.
+        isAiInChat:
+          type: boolean
+          description: True if ai_licia is currently in the channel chat.
     Platform:
       type: string
       description: Source platform (e.g. TWITCH, TIKTOK, KICK, YOUTUBE).
