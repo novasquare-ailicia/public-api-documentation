@@ -11,6 +11,8 @@ summary: Methods, streams, and env vars at a glance.
 ## Exports
 
 - `AiliciaClient`
+- `GenerationMode`
+- `GenerationOptions`
 - Public types from `./interfaces` (EventSub types, payloads, stream options, and chat types)
 
 ## Methods
@@ -18,7 +20,7 @@ summary: Methods, streams, and env vars at a glance.
 | Method | Purpose |
 | --- | --- |
 | `sendEvent(content, ttl?)` | Send contextual data via REST. |
-| `triggerGeneration(content)` | Trigger an immediate AI response. |
+| `triggerGeneration(content, options?)` | Trigger an immediate AI response, optionally selecting `STANDARD` or `FAST` execution and TTS delivery. |
 | `listCharacters()` | List characters available to the authenticated streamer. |
 | `setActiveCharacter(characterId)` | Set the active character for the streamer. |
 | `requestStreamJoin(channelName?)` | Ask ai_licia to join a channel. |

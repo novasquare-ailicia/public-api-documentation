@@ -12,7 +12,7 @@ info:
   contact:
     email: contact@novasquare.io
 
-  version: 1.3.0
+  version: 1.4.0
 
 servers:
   - url: https://api.getailicia.com
@@ -242,7 +242,7 @@ paths:
         '401':
           description: Unauthorized Not allowed to send events for this channel.
         '422':
-          description: Unprocessable Entity Content exceeds the 700-character limit.
+          description: Unprocessable Entity Content exceeds the 1,000-character limit.
       security:
         - api_key: []
 
@@ -456,7 +456,7 @@ components:
           type: string
           description: The data you want ai_licia to process and use in chat.
           example: "altitude (feet): 18.021114034125176, longitude: -58.408335967526185 "
-          maxLength: 700
+          maxLength: 1000
         ttl:
           type: integer
           format: int64   # Assuming the TTL is represented in seconds
@@ -486,8 +486,8 @@ components:
 
     EventContentGeneration:
       required:
-        - eventType
-        - data
+        - channelName
+        - content
       type: object
       properties:
         channelName:
@@ -499,32 +499,22 @@ components:
           example: "Plane landed succesful"
           description: The data you want ai_licia to react to with her generation.
           maxLength: 300
-        features:
-          $ref: '#/components/schemas/GenerationFeatures'
-          description: Optional feature flags to enable extra processing for this generation request.
-    GenerationFeatures:
+        options:
+          $ref: '#/components/schemas/GenerationOptions'
+    GenerationOptions:
       type: object
-      description: Feature toggles for the generation pipeline. Any omitted field uses its default value.
+      description: Optional generation execution and delivery settings. Omitted fields use their documented defaults.
       properties:
-        vision:
-          type: boolean
-          description: Enable vision processing for the event when applicable.
-          default: false
-        web_search:
-          type: boolean
-          description: Enable web search processing for the event when applicable.
-          default: false
-        commands:
-          type: boolean
-          description: Enable command execution processing for the event when applicable.
-          default: false
-        memory:
-          type: boolean
-          description: Enable memory processing for the event when applicable.
-          default: false
+        mode:
+          type: string
+          description: Select STANDARD execution or latency-optimized FAST execution. FAST does not modify the supplied content.
+          enum:
+            - STANDARD
+            - FAST
+          default: STANDARD
         tts:
           type: boolean
-          description: Enable text-to-speech generation when applicable (subject to existing TTS rules).
+          description: Enable text-to-speech delivery when applicable. This remains subject to existing TTS rules.
           default: true
     CharacterSummary:
       type: object

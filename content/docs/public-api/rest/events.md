@@ -44,7 +44,7 @@ You can send rich variety of context snippets; below are starting points you can
 - **Cooking / creative streams**: `"Recipe: Carbonara, currently boiling pasta"`, `"Art commission for @viewer42, blocking out colors"`, `"Maker stream: resin curing, 10 minutes remaining"`.
 - **Telemetry / HUD data**: `"Lap 5/12 completed in 1:37.521, tire wear 45%"`, `"Health 23%, shield broken, ammo 12/90"`, `"Flight sim altitude 18,000ft, IAS 220 knots, crosswind 12 knots"`.
 
-Blend multiple facts (within the ~700 char limit) to give ai_licia plenty of hooks.
+Blend multiple facts (within the 1,000-character limit) to give ai_licia plenty of hooks.
 
 ## POST /v1/events (context ingestion) {#post-v1-events}
 
@@ -61,7 +61,7 @@ Feed ai_licia structured text so she can weave it into future replies.
 - Body:
   - `eventType` (string): categorize the event (e.g. `GAME_EVENT`, `IRL_EVENT`)
   - `data.channelName` (string): channel tied to your API key
-  - `data.content` (string, max ~700 chars): the context snippet
+  - `data.content` (string, max 1,000 chars): the context snippet
   - `data.ttl` (optional integer): auto-expire after X seconds
 
 **Responses**
@@ -98,26 +98,22 @@ Request a specific reaction when you need ai_licia to speak now.
 - Body:
   - `eventType` (string): use any label, e.g. `CHAT_TRIGGER`
   - `data.channelName` (string): channel tied to your API key
-  - `data.content` (string, max ~300 chars): the prompt for ai_licia
-  - `data.features` (object, optional): per-request feature flags
-    - `vision` (boolean, default `false`)
-    - `web_search` (boolean, default `false`)
-    - `commands` (boolean, default `false`)
-    - `memory` (boolean, default `false`)
+  - `data.content` (string, max 300 chars): the prompt for ai_licia
+  - `data.options` (object, optional): execution and delivery options
+    - `mode` (`STANDARD` or `FAST`, default `STANDARD`)
     - `tts` (boolean, default `true`, still governed by existing TTS rules)
 
-**Latency impact**
-- Features run in parallel, so the total slowdown is driven by the slowest enabled feature.
-- Approximate overhead when enabled:
-  - `web_search`: +1.0s
-  - `commands`: +1.2s
-  - `memory`: +0.8s
-  - `vision`: +7.0s
-- `tts` does not delay posting the response, but audio delivery typically takes 500ms to 1s to generate and receive.
-
 {{< callout context="info" title="Defaults" >}}
-Omitting `data.features` (or any individual flag) uses the default values: all feature flags are `false` except `tts`, which defaults to `true` and still follows the existing TTS rules.
+Omitting `data.options` uses `STANDARD` model execution with TTS enabled. You can control TTS independently in either mode.
 {{< /callout >}}
+
+### Standard and fast modes
+
+`STANDARD` is the default and should be used for normal reactions, summaries, and prompts where response quality matters more than minimum latency.
+
+`FAST` selects latency-optimized model execution for brief, time-sensitive reactions. It does not rewrite, shorten, or otherwise modify `data.content`. Send the same complete instruction and factual grounding you would send in standard mode. If a particular sentence style is useful, include that as a hint in the content itself.
+
+Fast mode trades some quality and recovery resilience for lower latency. It does not guarantee a fixed end-to-end response or audio delivery time.
 
 **Responses**
 - `200 OK` — request accepted
@@ -134,11 +130,8 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
     "data": {
       "channelName": "mychannel",
       "content": "Tell chat the boss is enraged and we need focus now!",
-      "features": {
-        "vision": false,
-        "web_search": true,
-        "commands": false,
-        "memory": true,
+      "options": {
+        "mode": "FAST",
         "tts": true
       }
     }

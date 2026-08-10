@@ -10,7 +10,7 @@ summary: sendEvent and triggerGeneration examples with optional channel helpers.
 
 ## Send contextual events
 
-Enrich ai_licia's context (max ~700 chars). Does not force an immediate response.
+Enrich ai_licia's context (max 1,000 chars). Does not force an immediate response.
 
 ```ts {filename="send-event.ts"}
 await client.sendEvent('Player health: 85%, Position: X:145 Y:230, Kills: 12');
@@ -31,6 +31,22 @@ Ask ai_licia to react now (max ~300 chars). Returns generation metadata.
 const res = await client.triggerGeneration('Player just defeated the final boss!');
 console.log(res);
 ```
+
+For a brief, time-sensitive reaction, select fast model execution while keeping TTS independently controllable:
+
+```ts {filename="fast-trigger.ts"}
+import { GenerationMode } from 'ai_licia-client';
+
+await client.triggerGeneration(
+  'Tyre puncture. Briefly tell the driver to pit safely.',
+  {
+    mode: GenerationMode.FAST,
+    tts: true,
+  },
+);
+```
+
+Fast mode does not change the content you provide. Use the default `STANDARD` mode when minimum latency is not required.
 
 ## Channel helpers
 

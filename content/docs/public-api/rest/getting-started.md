@@ -41,11 +41,8 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
     "data": {
       "channelName": "mychannel",
       "content": "Jellab just landed a triple kill with Yasuo.",
-      "features": {
-        "vision": false,
-        "web_search": false,
-        "commands": false,
-        "memory": false,
+      "options": {
+        "mode": "FAST",
         "tts": true
       }
     }
@@ -54,7 +51,7 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
 ```
 
 {{< callout context="warning" title="Limits" >}}
-Rate limit: 1 request every ~25 seconds per API key. Content limit: ~300 characters for `/generations`, ~700 characters for `/events`.
+Rate limit: 1 request every ~25 seconds per API key. Content limit: 300 characters for `/generations`, 1,000 characters for `/events`. `FAST` changes model execution only and preserves the content you send.
 {{< /callout >}}
 
 ## Manage characters & chat presence
