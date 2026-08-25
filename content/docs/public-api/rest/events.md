@@ -98,7 +98,7 @@ Request a specific reaction when you need ai_licia to speak now.
 - Body:
   - `eventType` (string): use any label, e.g. `CHAT_TRIGGER`
   - `data.channelName` (string): channel tied to your API key
-  - `data.content` (string, max 300 chars): the prompt for ai_licia
+  - `data.content` (string, max 1,000 chars): the prompt for ai_licia
   - `data.options` (object, optional): execution and delivery options
     - `mode` (`STANDARD` or `FAST`, default `STANDARD`)
     - `tts` (boolean, default `true`, still governed by existing TTS rules)
@@ -109,11 +109,13 @@ Omitting `data.options` uses `STANDARD` model execution with TTS enabled. You ca
 
 ### Standard and fast modes
 
-`STANDARD` is the default and should be used for normal reactions, summaries, and prompts where response quality matters more than minimum latency.
+`STANDARD` is the default. Use it for normal reactions, summaries, or requests that need conversation history, memory, knowledge-base content, goals, mission, vision, web search, or commands.
 
-`FAST` selects latency-optimized model execution for brief, time-sensitive reactions. It does not rewrite, shorten, or otherwise modify `data.content`. Send the same complete instruction and factual grounding you would send in standard mode. If a particular sentence style is useful, include that as a hint in the content itself.
+`FAST` selects a dedicated latency-optimized path for brief, time-sensitive reactions. It keeps the active character and persona, configured language, compact streamer identity and description, current stream category, and current stream title. It deliberately excludes conversation history, memory, knowledge-base content, goals, mission, vision, web search, and commands.
 
-Fast mode trades some quality and recovery resilience for lower latency. It does not guarantee a fixed end-to-end response or audio delivery time.
+Fast mode does not rewrite, shorten, or otherwise change the accepted `data.content`. Send the complete instruction and factual grounding the message needs. If a particular sentence style is useful, include it as a hint in the content itself.
+
+Fast mode uses one model attempt with no fallback so stale messages are not delayed by recovery work. This trades some quality and resilience for lower latency. It does not guarantee a fixed end-to-end response or audio delivery time. TTS remains independently controlled by `data.options.tts`.
 
 **Responses**
 - `200 OK` — request accepted

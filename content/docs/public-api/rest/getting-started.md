@@ -51,7 +51,7 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
 ```
 
 {{< callout context="warning" title="Limits" >}}
-Rate limit: 1 request every ~25 seconds per API key. Content limit: 300 characters for `/generations`, 1,000 characters for `/events`. `FAST` changes model execution only and preserves the content you send.
+Rate limit: 1 request every ~25 seconds per API key. The content limit is 1,000 characters for both `/generations` and `/events`. `FAST` changes model execution only and preserves the content you send.
 {{< /callout >}}
 
 ## Manage characters & chat presence

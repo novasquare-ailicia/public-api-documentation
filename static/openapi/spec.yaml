@@ -496,9 +496,9 @@ components:
           example: jellabn
         content:
           type: string
-          example: "Plane landed succesful"
-          description: The data you want ai_licia to react to with her generation.
-          maxLength: 300
+          example: "Plane landed successfully"
+          description: The data you want ai_licia to react to with her generation. The accepted content is preserved in both STANDARD and FAST modes.
+          maxLength: 1000
         options:
           $ref: '#/components/schemas/GenerationOptions'
     GenerationOptions:
@@ -507,7 +507,7 @@ components:
       properties:
         mode:
           type: string
-          description: Select STANDARD execution or latency-optimized FAST execution. FAST does not modify the supplied content.
+          description: Select STANDARD execution or the dedicated latency-optimized FAST path. FAST keeps the active persona, configured language, and compact stream environment, but excludes conversation history, memory, knowledge-base content, goals, mission, vision, web search, and commands. It makes one model attempt without fallback and does not modify accepted content.
           enum:
             - STANDARD
             - FAST
