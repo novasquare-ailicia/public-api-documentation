@@ -43,7 +43,8 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
       "content": "Jellab just landed a triple kill with Yasuo.",
       "options": {
         "mode": "FAST",
-        "tts": true
+        "tts": true,
+        "ttl": 8
       }
     }
   }'
@@ -51,7 +52,7 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
 ```
 
 {{< callout context="warning" title="Limits" >}}
-Rate limit: 1 request every ~25 seconds per API key. The content limit is 1,000 characters for both `/generations` and `/events`. `FAST` changes model execution only and preserves the content you send.
+`STANDARD` allows 1 request every ~25 seconds per API key. `FAST` has an independent 1 request per second window. The content limit is 1,000 characters for `/events` and 300 characters for `/generations`. `FAST` changes model execution only and preserves the accepted content you send. Use `ttl` to discard a time-sensitive request if processing has not started before it becomes stale.
 {{< /callout >}}
 
 ## Manage characters & chat presence

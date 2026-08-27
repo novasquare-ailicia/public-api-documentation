@@ -13,7 +13,7 @@ Use the REST API to push contextual events to ai_licia or trigger a reaction.
 | Action | Endpoint | Notes |
 | --- | --- | --- |
 | Send context | `POST /v1/events` | Up to 1,000 chars |
-| Trigger reaction | `POST /v1/events/generations` | Up to 1,000 chars, 1 request every ~25s per API key |
+| Trigger reaction | `POST /v1/events/generations` | Up to 300 chars; independent per-key windows: `STANDARD` ~25s, `FAST` 1s |
 | List characters | `GET /v1/characters` | Returns id, name, description, active state |
 | Set active character | `PUT /v1/characters/{characterId}/active` | Only works for owned characters |
 | Channel status | `GET /v1/channels/status` | Returns `channelName`, `isPrimary`, `isLive`, `isAiInChat` |

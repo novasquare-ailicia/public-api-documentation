@@ -25,7 +25,7 @@ await client.sendEvent('Lights: blue', 300);
 
 ## Trigger a reaction
 
-Ask ai_licia to react now (max 1,000 chars). Returns generation metadata.
+Ask ai_licia to react now (max 300 chars). Returns generation metadata.
 
 ```ts {filename="trigger.ts"}
 const res = await client.triggerGeneration('Player just defeated the final boss!');
@@ -42,11 +42,14 @@ await client.triggerGeneration(
   {
     mode: GenerationMode.FAST,
     tts: true,
+    ttl: 8,
   },
 );
 ```
 
 Fast mode retains the active persona, configured language, and compact stream environment. It excludes history, memory, knowledge-base content, goals, mission, vision, web search, and commands, and makes one model attempt without fallback. It does not change the accepted content you provide. TTS remains independently controllable.
+
+`STANDARD` and `FAST` use independent per-key rate windows: roughly 25 seconds for `STANDARD`, and 1 second for `FAST`. `ttl` is optional and measured in seconds. It prevents a stale request from being processed after its deadline.
 
 Use the default `STANDARD` mode when minimum latency is not required or the response needs any excluded context or capability.
 

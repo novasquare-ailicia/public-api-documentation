@@ -98,10 +98,11 @@ Request a specific reaction when you need ai_licia to speak now.
 - Body:
   - `eventType` (string): use any label, e.g. `CHAT_TRIGGER`
   - `data.channelName` (string): channel tied to your API key
-  - `data.content` (string, max 1,000 chars): the prompt for ai_licia
+  - `data.content` (string, max 300 chars): the prompt for ai_licia
   - `data.options` (object, optional): execution and delivery options
     - `mode` (`STANDARD` or `FAST`, default `STANDARD`)
     - `tts` (boolean, default `true`, still governed by existing TTS rules)
+    - `ttl` (optional positive integer, seconds): discard the request if processing has not started before it becomes stale
 
 {{< callout context="info" title="Defaults" >}}
 Omitting `data.options` uses `STANDARD` model execution with TTS enabled. You can control TTS independently in either mode.
@@ -117,11 +118,13 @@ Fast mode does not rewrite, shorten, or otherwise change the accepted `data.cont
 
 Fast mode uses one model attempt with no fallback so stale messages are not delayed by recovery work. This trades some quality and resilience for lower latency. It does not guarantee a fixed end-to-end response or audio delivery time. TTS remains independently controlled by `data.options.tts`.
 
+Rate limits are independent by mode for each API key: `STANDARD` allows one accepted request roughly every 25 seconds, while `FAST` allows one accepted request per second. A request in one mode does not consume the other mode's window. These limits control API admission, not guaranteed speech cadence. Overlapping generations may still be serialized by downstream delivery.
+
 **Responses**
 - `200 OK` — request accepted
 - `401 Unauthorized` — missing/invalid key
 - `422 Unprocessable Entity` — content too long
-- `429 Too Many Requests` — exceeded 1 request per ~25-second window (per API key)
+- `429 Too Many Requests` — exceeded the selected mode's per-key window (`STANDARD`: ~25 seconds, `FAST`: 1 second)
 
 ```bash
 curl -X POST https://api.getailicia.com/v1/events/generations \
@@ -134,7 +137,8 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
       "content": "Tell chat the boss is enraged and we need focus now!",
       "options": {
         "mode": "FAST",
-        "tts": true
+        "tts": true,
+        "ttl": 8
       }
     }
   }'
@@ -142,5 +146,5 @@ curl -X POST https://api.getailicia.com/v1/events/generations \
 ```
 
 {{< callout context="warning" title="Best practice" >}}
-Let `/v1/events` drive most of the context; reserve `/v1/events/generations` for critical, infrequent prompts. The generation endpoint allows **one request roughly every 25 seconds per API key**, so queue/batch rewards when possible to avoid 429s.
+Let `/v1/events` drive durable context. Use `STANDARD` generations for normal reactions and summaries, and reserve `FAST` for brief facts that become stale quickly. Respect the independent per-key windows of **roughly 25 seconds for `STANDARD`** and **1 second for `FAST`**. Set a short `ttl` on live alerts so delayed advice is discarded rather than spoken late.
 {{< /callout >}}

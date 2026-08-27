@@ -498,7 +498,7 @@ components:
           type: string
           example: "Plane landed successfully"
           description: The data you want ai_licia to react to with her generation. The accepted content is preserved in both STANDARD and FAST modes.
-          maxLength: 1000
+          maxLength: 300
         options:
           $ref: '#/components/schemas/GenerationOptions'
     GenerationOptions:
@@ -516,6 +516,13 @@ components:
           type: boolean
           description: Enable text-to-speech delivery when applicable. This remains subject to existing TTS rules.
           default: true
+        ttl:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Optional time-to-live in seconds. If processing has not started before this deadline, the stale generation is discarded. This is useful for time-sensitive FAST events.
+          example: 8
+          nullable: true
     CharacterSummary:
       type: object
       required:

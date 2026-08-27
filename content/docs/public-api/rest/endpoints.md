@@ -12,7 +12,7 @@ description: Quick matrix of available REST endpoints, their purpose, limits, an
 | Endpoint | Purpose | Limits | Details |
 | --- | --- | --- | --- |
 | `POST /v1/events` | Send contextual data | 1,000 chars | [Docs](/docs/public-api/rest/events) |
-| `POST /v1/events/generations` | Trigger AI reaction | 1,000 chars; 1 request every ~25s per API key | [Docs](/docs/public-api/rest/events#post-v1-events-generations) |
+| `POST /v1/events/generations` | Trigger AI reaction | 300 chars; independent per-key windows: `STANDARD` ~25s, `FAST` 1s | [Docs](/docs/public-api/rest/events#post-v1-events-generations) |
 | `GET /v1/characters` | List owned characters (id, name, description, active flag) | N/A | [Docs](/docs/public-api/rest/characters#get-v1characters) |
 | `PUT /v1/characters/{characterId}/active` | Change the active character | Character must belong to the API key owner | [Docs](/docs/public-api/rest/characters#put-v1characterscharacteridactive) |
 | `GET /v1/channels/status` | Read runtime channel status | Requires API key; returns only `channelName`, `isPrimary`, `isLive`, `isAiInChat` | [Docs](/docs/public-api/rest/channels#get-v1channelsstatus) |
