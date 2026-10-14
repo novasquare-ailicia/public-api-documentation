@@ -4,16 +4,16 @@ type: docs
 weight: 20
 prev: /docs/public-api/authentication
 next: /docs/public-api/local-websocket/getting-started
-description: Use the local dashboard WebSocket to request user consent and receive the channel API key.
-summary: Connect locally, request approval, and receive the channel API key without manual copy/paste.
+description: Use the authenticated local dashboard WebSocket for API credentials, Vision setup, and renderer-neutral avatar events.
+summary: Connect locally, request scoped approval, and consume typed integration capabilities.
 ---
 
-The desktop dashboard app exposes a **local-only WebSocket** for third-party integrations (for example, Lumia). It lets your app request user approval and receive the **channel API key** that works with the REST API.
+The desktop dashboard app exposes a **local-only WebSocket** for third-party integrations. It provides explicit, scoped consent for REST access, Vision setup, and renderer-neutral avatar events.
 
 Key facts:
 - URL: `ws://127.0.0.1:51743` (override with `INTEGRATION_WS_PORT`)
 - Transport: JSON messages with `{type, payload}`
-- Authorization: explicit user consent; revoke by regenerating the API key
+- Authorization: explicit user consent with scope-specific revocation
 - Local only: the server binds to `127.0.0.1`
 
 Quick links:
@@ -23,4 +23,5 @@ Quick links:
   {{< card link="/docs/public-api/local-websocket/capabilities-events" title="Capability: Events" subtitle="TTS amplitude stream" >}}
   {{< card link="/docs/public-api/local-websocket/capabilities-state" title="Capability: State" subtitle="Reserved for future state snapshots" >}}
   {{< card link="/docs/public-api/local-websocket/capabilities-integration-auth" title="Capability: integration.auth" subtitle="Consent + API key flow" >}}
+  {{< card link="/docs/public-api/local-websocket/avatar-protocol" title="Avatar Protocol v1" subtitle="Lifecycle, mouth animation, expressions, actions, and snapshots" >}}
 {{< /cards >}}

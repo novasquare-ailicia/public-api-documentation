@@ -26,11 +26,13 @@ The `welcome` message returns the capabilities supported by the server:
 | `events` | Event notifications (future use) |
 | `state` | App state snapshots (future use) |
 | `integration.auth` | Access request flow is supported (available when user is signed in) |
+| `avatar.protocol.v1` | Authenticated avatar subscription and event protocol |
 
 See per-capability details:
 - [Capability: Events](/docs/public-api/local-websocket/capabilities-events)
 - [Capability: State](/docs/public-api/local-websocket/capabilities-state)
 - [Capability: integration.auth](/docs/public-api/local-websocket/capabilities-integration-auth)
+- [Avatar Protocol v1](/docs/public-api/local-websocket/avatar-protocol)
 
 ## Message Types
 
@@ -44,7 +46,8 @@ Identify your client.
     "clientType": "integration",
     "clientId": "lumia",
     "displayName": "Lumia",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "reconnectCredential": "aig_opaque_credential"
   }
 }
 ```
@@ -54,6 +57,7 @@ Fields:
 - `clientId`: stable ID (slug or reverse-DNS)
 - `displayName`: shown to the user (not verified)
 - `version`: semantic version of your client
+- `reconnectCredential`: optional opaque credential returned after earlier consent
 
 ### welcome (server -> client)
 Server confirms support and capabilities.
@@ -62,7 +66,8 @@ Server confirms support and capabilities.
 {
   "type": "welcome",
   "payload": {
-    "capabilities": ["events", "state", "integration.auth"]
+    "capabilities": ["events", "state", "integration.auth", "avatar.protocol.v1"],
+    "authorizedScopes": ["avatar.events.read"]
   }
 }
 ```
@@ -82,7 +87,7 @@ Request user approval for scopes.
 ```
 
 Fields:
-- `requestedScopes`: array of scopes; v1 supports `rest.full` only
+- `requestedScopes`: one or more supported scopes, including `rest.full` and `avatar.events.read`
 
 ### access_pending (server -> client, optional)
 Indicates a consent prompt is waiting for user input.
@@ -97,7 +102,7 @@ Indicates a consent prompt is waiting for user input.
 ```
 
 ### access_granted (server -> client)
-User approved; channel API key is issued.
+User approved. The response contains only the credentials needed by the approved scopes.
 
 ```json
 {
@@ -110,6 +115,21 @@ User approved; channel API key is issued.
   }
 }
 ```
+
+An avatar-only grant does not expose the REST API key:
+
+```json
+{
+  "type": "access_granted",
+  "payload": {
+    "requestId": "req_01HZXN5A",
+    "scopes": ["avatar.events.read"],
+    "reconnectCredential": "aig_opaque_credential"
+  }
+}
+```
+
+Persist the opaque credential in an application-owned file with operating-system appropriate permissions. Supply it in the next `hello` so approval survives restarts. A `clientId` alone is not authorization.
 
 ### access_denied (server -> client)
 User denied the request.

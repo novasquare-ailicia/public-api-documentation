@@ -12,7 +12,7 @@ The ai_licia public API exposes three surfaces:
 {{< cards >}}
   {{< card link="/docs/public-api/rest" title="REST" subtitle="Send contextual events; trigger reactions" >}}
   {{< card link="/docs/public-api/eventsub" title="EventSub" subtitle="Real-time SSE for chat, AI, channel, system" >}}
-  {{< card link="/docs/public-api/local-websocket" title="Local WebSocket" subtitle="Local consent + integration key bootstrap" >}}
+  {{< card link="/docs/public-api/local-websocket" title="Local WebSocket" subtitle="Scoped consent, Vision, and avatar events" >}}
   {{< card link="/docs/sdk" title="SDKs" subtitle="Use the npm client or other libraries" >}}
 {{< /cards >}}
 

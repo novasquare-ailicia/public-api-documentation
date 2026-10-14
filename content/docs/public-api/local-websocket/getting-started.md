@@ -4,8 +4,8 @@ type: docs
 weight: 10
 prev: /docs/public-api/local-websocket
 next: /docs/public-api/local-websocket/messages
-description: Connect to the local WebSocket, request user consent, and receive the channel API key.
-summary: Step-by-step handshake for local integrations using the dashboard WebSocket.
+description: Connect to the local WebSocket, request scoped consent, and restore durable integration access.
+summary: Step-by-step handshake for REST, Vision, and avatar integrations using the dashboard WebSocket.
 ---
 
 ## 1) Connect locally
@@ -27,19 +27,20 @@ Identify your app and declare the client type:
 ```
 
 ## 3) Read the `welcome`
-The server responds with supported capabilities. `integration.auth` is present when the user is signed in and the API key is available.
+The server responds with supported capabilities. `integration.auth` is present when the user is signed in and at least one authorization surface is available.
 
 ```json
 {
   "type": "welcome",
   "payload": {
-    "capabilities": ["events", "state", "integration.auth"]
+    "capabilities": ["events", "state", "integration.auth", "avatar.protocol.v1"],
+    "authorizedScopes": []
   }
 }
 ```
 
 ## 4) Request access
-Send the scopes you need. v1 starts with a single scope: `rest.full`.
+Send only the scopes you need. Use `rest.full` for the public REST API or `avatar.events.read` for avatar animation events.
 
 ```json
 {
@@ -52,10 +53,10 @@ Send the scopes you need. v1 starts with a single scope: `rest.full`.
 }
 ```
 
-The dashboard app will show a consent modal to the user.
+The dashboard app will show a consent modal to the user. The `clientId` must match the earlier `hello`.
 
 ## 5) Handle the response
-If approved, you receive the channel API key:
+If `rest.full` is approved, you receive the channel API key:
 
 ```json
 {
@@ -69,6 +70,8 @@ If approved, you receive the channel API key:
 }
 ```
 
+For `avatar.events.read`, you receive an opaque reconnect credential instead of an API key. Persist it securely and include it as `reconnectCredential` in future `hello` messages. The next `welcome.authorizedScopes` confirms whether access was restored.
+
 If the user denies, you receive:
 
 ```json
@@ -81,13 +84,13 @@ If the user denies, you receive:
 }
 ```
 
-## 6) Call the REST API
+## 6) Use the granted capability
 Use the API key like any other API key:
 
 ```shell
 Authorization: Bearer <API_KEY>
 ```
 
-See the [REST endpoints](/docs/public-api/rest/endpoints) for available operations.
+See the [REST endpoints](/docs/public-api/rest/endpoints) for REST access or [Avatar Protocol v1](/docs/public-api/local-websocket/avatar-protocol) for renderer subscriptions.
 
-To revoke access, regenerate the API key in the dashboard settings.
+To revoke REST access, regenerate the API key in dashboard settings. Avatar grants can be revoked individually from the Desktop Integrations page.

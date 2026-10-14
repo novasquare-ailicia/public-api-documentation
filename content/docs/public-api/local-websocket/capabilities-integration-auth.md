@@ -4,16 +4,14 @@ type: docs
 weight: 50
 prev: /docs/public-api/local-websocket/capabilities-state
 next: /docs/public-api/rest
-description: User consent flow for local integrations to access the channel API key.
-summary: Request access, wait for user approval, then use the returned API key.
+description: User consent flow for local integrations to obtain narrowly scoped access.
+summary: Request REST, Vision, or avatar access and restore durable grants securely.
 ---
 
-The `integration.auth` capability enables a consent flow that returns the **channel API key** after the user approves your request.
+The `integration.auth` capability enables a consent flow for narrowly scoped local integration access. Credentials are returned only when required by the approved scope.
 
 ## When is it available?
-`integration.auth` appears in the `welcome` capabilities when:
-- The user is signed in, and
-- The dashboard app has loaded the channel API key.
+`integration.auth` appears in the `welcome` capabilities when the user is signed in and at least one integration authorization surface is available.
 
 If it is missing, your client should fall back or retry later.
 
@@ -26,10 +24,15 @@ If it is missing, your client should fall back or retry later.
 See the full message schemas in [Message Reference](/docs/public-api/local-websocket/messages).
 
 ## Scopes
-v1 supports only:
-- `rest.full`
 
-Any other scope triggers an error.
+| Scope | Purpose | Returned credential |
+| --- | --- | --- |
+| `rest.full` | Use the account REST API | Channel API key |
+| `avatar.events.read` | Subscribe to local avatar animation events | Opaque reconnect credential |
+| `vision.rtmp.configure` | Configure the legacy Vision publishing output | Vision RTMP credential |
+| `vision.installation.register` | Link a managed Vision installation | Installation authorization |
+
+Request only the scopes your integration needs.
 
 ## Responses
 Success:
@@ -45,6 +48,21 @@ Success:
   }
 }
 ```
+
+Avatar-only success:
+
+```json
+{
+  "type": "access_granted",
+  "payload": {
+    "requestId": "req_01HZXN5A",
+    "scopes": ["avatar.events.read"],
+    "reconnectCredential": "aig_opaque_credential"
+  }
+}
+```
+
+The reconnect credential is bound to the current ai_licia account, Desktop installation, and integration `clientId`. Desktop persists only a credential hash. The integration must store its opaque credential and supply it in a later `hello`. Users can revoke avatar grants from the Desktop Integrations page.
 
 Denial:
 
