@@ -12,6 +12,9 @@ Use the REST API to push contextual events to ai_licia or trigger a reaction.
 
 | Action | Endpoint | Notes |
 | --- | --- | --- |
+| List callable Recipes | `GET /v1/recipes` | [Setup and requirements](/docs/public-api/rest/recipes) |
+| Trigger a Recipe | `POST /v1/recipes/{recipeId}/runs` | Typed inputs; connected desktop required |
+| Recipe webhook | `POST /v1/recipe-webhooks/{webhookId}` | Dedicated limited token |
 | Send context | `POST /v1/events` | Up to 1,000 chars |
 | Trigger reaction | `POST /v1/events/generations` | Up to 300 chars; independent per-key windows: `STANDARD` ~25s, `FAST` 1s |
 | List characters | `GET /v1/characters` | Returns id, name, description, active state |

@@ -11,6 +11,9 @@ description: Quick matrix of available REST endpoints, their purpose, limits, an
 
 | Endpoint | Purpose | Limits | Details |
 | --- | --- | --- | --- |
+| `GET /v1/recipes` | List callable installed Recipes | Requires compatible external-trigger release | [Docs](/docs/public-api/rest/recipes) |
+| `POST /v1/recipes/{recipeId}/runs` | Trigger an installed Recipe | Typed inputs, Idempotency-Key, connected desktop | [Docs](/docs/public-api/rest/recipes) |
+| `POST /v1/recipe-webhooks/{webhookId}` | Invoke a scoped webhook | Limited bearer token, Idempotency-Key | [Docs](/docs/public-api/rest/recipes) |
 | `POST /v1/events` | Send contextual data | 1,000 chars | [Docs](/docs/public-api/rest/events) |
 | `POST /v1/events/generations` | Trigger AI reaction | 300 chars; independent per-key windows: `STANDARD` ~25s, `FAST` 1s | [Docs](/docs/public-api/rest/events#post-v1-events-generations) |
 | `GET /v1/characters` | List owned characters (id, name, description, active flag) | N/A | [Docs](/docs/public-api/rest/characters#get-v1characters) |

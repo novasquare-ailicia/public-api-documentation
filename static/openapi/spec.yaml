@@ -29,7 +29,111 @@ tags:
     description: Read runtime status for channels controlled by your API key
   - name: streams
     description: Control ai_licia presence on your live stream chat
+  - name: recipes
+    description: Start installed Recipes through explicit external-request triggers
 paths:
+  /v1/recipes:
+    get:
+      tags: [recipes]
+      summary: List externally callable installed Recipes
+      description: Requires the compatible external-trigger release. Lists only owned, enabled, ready installations; desktop availability is checked on invocation.
+      operationId: listExternalRecipes
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: Available installed Recipes and required typed trigger inputs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalRecipe'
+        '401':
+          description: Invalid API key
+  /v1/recipes/{recipeId}/runs:
+    post:
+      tags: [recipes]
+      summary: Request an external Recipe run
+      description: The recipeId is an installation ID. Inputs must match the declared fields exactly and fit within 16 KiB. Acceptance confirms a desktop claim, not final execution. No offline replay or public run-status endpoint is provided.
+      operationId: startExternalRecipeRun
+      security:
+        - api_key: []
+      parameters:
+        - name: recipeId
+          in: path
+          required: true
+          schema: {type: string}
+        - $ref: '#/components/parameters/RecipeIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [triggerId]
+              properties:
+                triggerId: {type: string}
+                characterId:
+                  type: string
+                  description: Required when more than one character is assigned.
+                inputs:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '202':
+          $ref: '#/components/responses/ExternalRecipeAccepted'
+        '400':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '401':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '404':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '409':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '429':
+          $ref: '#/components/responses/ExternalRecipeRateLimited'
+        '503':
+          $ref: '#/components/responses/ExternalRecipeError'
+  /v1/recipe-webhooks/{webhookId}:
+    post:
+      tags: [recipes]
+      summary: Invoke one installed Recipe trigger with a limited webhook token
+      description: Use the dedicated URL and bearer token created in the app. Tokens are installation/trigger/character scoped, revocable, and never embedded in published graphs. Requires the compatible external-trigger release and a connected desktop.
+      operationId: invokeRecipeWebhook
+      security:
+        - recipe_webhook: []
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema: {type: string}
+        - $ref: '#/components/parameters/RecipeIdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inputs:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '202':
+          $ref: '#/components/responses/ExternalRecipeAccepted'
+        '400':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '401':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '404':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '409':
+          $ref: '#/components/responses/ExternalRecipeError'
+        '429':
+          $ref: '#/components/responses/ExternalRecipeRateLimited'
+        '503':
+          $ref: '#/components/responses/ExternalRecipeError'
   /v1/characters:
     get:
       tags:
@@ -424,7 +528,78 @@ paths:
         - api_key: [ ]
 
 components:
+  parameters:
+    RecipeIdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Reuse for retries of the same request; a new key starts a new logical run. Scoped to the installation and trigger across API and webhook calls.
+      schema: {type: string, minLength: 1, maxLength: 128, pattern: '^[!-~]+$'}
+  responses:
+    ExternalRecipeAccepted:
+      description: One compatible desktop accepted the request; execution may still fail later.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [runId, status]
+            properties:
+              runId: {type: string}
+              status:
+                type: string
+                enum: [RUNNING, SUCCEEDED, FAILED, CANCELLED, TIMED_OUT]
+    ExternalRecipeError:
+      description: Recipe request rejected; errors do not include submitted input values or credentials.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ExternalRecipeErrorBody'}
+    ExternalRecipeRateLimited:
+      description: Too many new Recipe requests.
+      headers:
+        Retry-After:
+          schema: {type: integer}
+          description: Seconds before retrying.
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ExternalRecipeErrorBody'}
   schemas:
+    ExternalRecipe:
+      type: object
+      required: [id, name, description, characterIds, triggers]
+      properties:
+        id: {type: string, description: Installed Recipe ID}
+        name: {type: string}
+        description: {type: string}
+        characterIds:
+          type: array
+          items: {type: string}
+        triggers:
+          type: array
+          items:
+            type: object
+            required: [id, name, inputs]
+            properties:
+              id: {type: string}
+              name: {type: string}
+              inputs:
+                type: array
+                maxItems: 10
+                items:
+                  type: object
+                  required: [key, label, valueType, required]
+                  properties:
+                    key: {type: string, maxLength: 64, pattern: '^[A-Za-z_][A-Za-z0-9_]*$'}
+                    label: {type: string}
+                    valueType: {type: string, enum: [TEXT, NUMBER, BOOLEAN, OBJECT, ARRAY]}
+                    required: {type: boolean, enum: [true]}
+    ExternalRecipeErrorBody:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [INVALID_REQUEST, NOT_FOUND, UNAUTHORIZED, CONFLICT, RATE_LIMITED, DESKTOP_UNAVAILABLE]
+        message: {type: string}
     Event:
       required:
         - eventType
@@ -1191,6 +1366,10 @@ components:
             $ref: '#/components/schemas/Event'
 
   securitySchemes:
+    recipe_webhook:
+      type: http
+      scheme: bearer
+      description: Limited webhook token generated for one installed Recipe trigger and character.
     api_key:
       type: apiKey
       name: Authorization
