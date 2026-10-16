@@ -11,7 +11,7 @@ summary: Subscribe to typed avatar animation profiles over the authenticated Des
 `avatar.protocol.v1` publishes renderer-neutral animation intent over the existing authenticated local WebSocket. Unreal Engine is the first external validation target, but the protocol also supports browser, VRM, Live2D, Unity, Godot, and other adapters.
 
 {{< callout context="info" title="Initial Desktop producer" >}}
-The first Desktop producer supports `avatar.speech.lifecycle.v1` and `avatar.mouth.amplitude.v1`. Visemes, ARKit speech coefficients, semantic expressions, and semantic actions are optional v1 profiles and can be added without changing the baseline flow.
+The Desktop producer supports `avatar.speech.lifecycle.v1`, `avatar.mouth.amplitude.v1`, `avatar.expression.vrm.v1`, and `avatar.action.semantic.v1`. Expressions and reaction actions are emitted only when an expressive speech plan was applied to the exact audio item. Visemes and ARKit speech coefficients remain optional future v1 profiles.
 {{< /callout >}}
 
 ## Baseline flow
@@ -72,6 +72,14 @@ Every avatar event contains:
 
 Exactly one mouth profile is the active speech driver for an utterance. Renderers must not apply amplitude, visemes, and ARKit speech frames simultaneously.
 
+## Speech performance
+
+When expressive TTS applies a structured speech plan, Desktop maps its dominant delivery to a portable semantic expression. The expression source is `speech_delivery` and carries the exact `utteranceId`, `sourceMessageId`, `audioItemId`, source segment index, and mapping version.
+
+A reaction at the beginning of the utterance may also emit a one-shot semantic action with a `speech_reaction` source. Reactions in later segments are not approximated. They require aligned TTS cue timing before they can be emitted reliably.
+
+Raw provider tags, model tone strings, Unreal asset names, and robot commands are never exposed as protocol identifiers. Every renderer keeps those mappings locally.
+
 ## Timing
 
 Speech events use audio-relative integer millisecond offsets. On `started` or `resumed`, record a local monotonic timestamp and advance from the supplied `playbackOffsetMs`. `emittedAtMs` is diagnostic wall-clock time and is not the animation clock.
@@ -106,3 +114,7 @@ The `ai_licia-client` package exports the complete TypeScript contract, runtime 
 - `LocalWebSocketClient`
 
 The source repository also includes a local WebSocket simulator on `ws://127.0.0.1:51744` for adapter development before connecting to Desktop.
+
+## StackChan factory-firmware example
+
+The [`examples/stackchan-adapter`](https://github.com/novasquare-ailicia/ai_licia-core/tree/main/examples/stackchan-adapter) example consumes the same protocol and controls a stock M5Stack StackChan over BLE. It supports simulated output, mouth amplitude, expression geometry, side LEDs, and conservative semantic head movements without flashing custom firmware.
