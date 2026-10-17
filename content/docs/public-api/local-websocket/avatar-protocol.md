@@ -11,7 +11,7 @@ summary: Subscribe to typed avatar animation profiles over the authenticated Des
 `avatar.protocol.v1` publishes renderer-neutral animation intent over the existing authenticated local WebSocket. Unreal Engine is the first external validation target, but the protocol also supports browser, VRM, Live2D, Unity, Godot, and other adapters.
 
 {{< callout context="info" title="Initial Desktop producer" >}}
-The Desktop producer supports `avatar.speech.lifecycle.v1`, `avatar.mouth.amplitude.v1`, `avatar.expression.vrm.v1`, and `avatar.action.semantic.v1`. Expressions and reaction actions are emitted only when an expressive speech plan was applied to the exact audio item. Visemes and ARKit speech coefficients remain optional future v1 profiles.
+The Desktop producer supports `avatar.speech.lifecycle.v1`, `avatar.mouth.amplitude.v1`, `avatar.expression.vrm.v1`, and `avatar.action.semantic.v1`. Expressions, reaction actions, and physical gestures are emitted only when a structured speech plan matches the exact message and audio item. A known TTS tone supplies an expression fallback when no matching plan is available. Visemes and ARKit speech coefficients remain optional future v1 profiles.
 {{< /callout >}}
 
 ## Baseline flow
@@ -74,9 +74,11 @@ Exactly one mouth profile is the active speech driver for an utterance. Renderer
 
 ## Speech performance
 
-When expressive TTS applies a structured speech plan, Desktop maps its dominant delivery to a portable semantic expression. The expression source is `speech_delivery` and carries the exact `utteranceId`, `sourceMessageId`, `audioItemId`, source segment index, and mapping version.
+When a structured speech plan matches the exact message, Desktop maps its dominant delivery to a portable semantic expression. The expression source is `speech_delivery` and carries the exact `utteranceId`, `sourceMessageId`, `audioItemId`, source segment index, and mapping version.
 
-A reaction at the beginning of the utterance may also emit a one-shot semantic action with a `speech_reaction` source. Reactions in later segments are not approximated. They require aligned TTS cue timing before they can be emitted reliably.
+A reaction or physical gesture at the beginning of the utterance may also emit one one-shot semantic action. Audible reactions use a `speech_reaction` source. Silent gestures use a `speech_gesture` source with one of `wink`, `nod`, `shake_head`, or `rage`. The source carries the same exact utterance, message, audio item, segment, and mapping identities.
+
+One opening segment cannot request both a reaction and a gesture. Cues in later segments are not approximated because they require aligned TTS cue timing before they can be emitted reliably. Standard action identifiers such as `nod` and `shake_head` are portable. Renderer-specific additions such as `ai.licia/wink` and `ai.licia/rage` are namespaced and may be ignored by renderers that do not implement them.
 
 Raw provider tags, model tone strings, Unreal asset names, and robot commands are never exposed as protocol identifiers. Every renderer keeps those mappings locally.
 
@@ -117,4 +119,4 @@ The source repository also includes a local WebSocket simulator on `ws://127.0.0
 
 ## StackChan factory-firmware example
 
-The [`examples/stackchan-adapter`](https://github.com/novasquare-ailicia/ai_licia-core/tree/main/examples/stackchan-adapter) example consumes the same protocol and controls a stock M5Stack StackChan over BLE. It supports simulated output, mouth amplitude, expression geometry, side LEDs, and conservative semantic head movements without flashing custom firmware.
+The [`examples/stackchan-adapter`](https://github.com/novasquare-ailicia/ai_licia-core/tree/main/examples/stackchan-adapter) example consumes the same protocol and controls a stock M5Stack StackChan over BLE. It supports simulated output, mouth amplitude, expression geometry, side LEDs, conservative semantic head movements, Wink, Nod, Shake Head, and Rage without flashing custom firmware. The factory mouth can open, move, and rotate but cannot curve into a smile, so Happy is expressed through its eyes, lighting, and posture.
