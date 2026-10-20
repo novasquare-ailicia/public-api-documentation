@@ -3,7 +3,7 @@ title: "Capability: integration.auth"
 type: docs
 weight: 50
 prev: /docs/public-api/local-websocket/capabilities-state
-next: /docs/public-api/rest
+next: /docs/public-api/local-websocket/avatar-protocol
 description: User consent flow for local integrations to obtain narrowly scoped access.
 summary: Request REST, Vision, or avatar access and restore durable grants securely.
 ---
@@ -28,7 +28,7 @@ See the full message schemas in [Message Reference](/docs/public-api/local-webso
 | Scope | Purpose | Returned credential |
 | --- | --- | --- |
 | `rest.full` | Use the account REST API | Channel API key |
-| `avatar.events.read` | Subscribe to local avatar animation events | Opaque reconnect credential |
+| `avatar.events.read` | Subscribe to avatar animation state and optional TTS audio | Opaque reconnect credential |
 | `vision.rtmp.configure` | Configure the legacy Vision publishing output | Vision RTMP credential |
 | `vision.installation.register` | Link a managed Vision installation | Installation authorization |
 
@@ -98,4 +98,4 @@ Errors are sent with `type: "error"` and a typed `code`:
 - Pending requests expire automatically after a short timeout.
 
 ## Revocation
-Integrations receive the channel API key. The user can revoke access by regenerating the API key in the dashboard settings.
+REST access is revoked by regenerating the channel API key. Avatar grants are revoked individually from Desktop. Revoking an avatar grant closes its active socket and invalidates its reconnect credential. Changing ai_licia accounts also invalidates the previous account's avatar grants.

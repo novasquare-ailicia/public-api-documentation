@@ -4,17 +4,18 @@ type: docs
 weight: 20
 prev: /docs/public-api/authentication
 next: /docs/public-api/local-websocket/getting-started
-description: Use the authenticated local dashboard WebSocket for API credentials, Vision setup, and renderer-neutral avatar events.
-summary: Connect locally, request scoped approval, and consume typed integration capabilities.
+description: Use the authenticated Desktop WebSocket for API credentials, Vision setup, and renderer-neutral avatar events.
+summary: Connect on the same computer or opt in to avatar-only LAN access, request scoped approval, and consume typed integration capabilities.
 ---
 
-The desktop dashboard app exposes a **local-only WebSocket** for third-party integrations. It provides explicit, scoped consent for REST access, Vision setup, and renderer-neutral avatar events.
+The Desktop app exposes one authenticated WebSocket for third-party integrations. REST and Vision access stay on the same computer. Users may explicitly enable avatar-only LAN access for renderers and physical avatars on the same network.
 
 Key facts:
-- URL: `ws://127.0.0.1:51743` (override with `INTEGRATION_WS_PORT`)
-- Transport: JSON messages with `{type, payload}`
+- Loopback URL: `ws://127.0.0.1:51743` (override with `INTEGRATION_WS_PORT`)
+- LAN discovery: `_ailicia-avatar._tcp.local` when the user enables Avatar LAN access
+- Transport: JSON control and event messages, with optional binary avatar audio chunks
 - Authorization: explicit user consent with scope-specific revocation
-- Local only: the server binds to `127.0.0.1`
+- LAN boundary: only `avatar.events.read` and avatar protocol messages are accepted from non-loopback clients
 
 Quick links:
 {{< cards >}}
@@ -24,4 +25,6 @@ Quick links:
   {{< card link="/docs/public-api/local-websocket/capabilities-state" title="Capability: State" subtitle="Reserved for future state snapshots" >}}
   {{< card link="/docs/public-api/local-websocket/capabilities-integration-auth" title="Capability: integration.auth" subtitle="Consent + API key flow" >}}
   {{< card link="/docs/public-api/local-websocket/avatar-protocol" title="Avatar Protocol v1" subtitle="Lifecycle, mouth animation, expressions, actions, and snapshots" >}}
+  {{< card link="/docs/public-api/local-websocket/avatar-events" title="Avatar Event Reference" subtitle="Typed lifecycle, mouth, expression, action, and snapshot events" >}}
+  {{< card link="/docs/public-api/local-websocket/avatar-audio" title="Avatar Audio" subtitle="PCM, Opus, Base64, and binary-v1 delivery" >}}
 {{< /cards >}}

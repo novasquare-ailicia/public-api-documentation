@@ -23,8 +23,8 @@ The `welcome` message returns the capabilities supported by the server:
 
 | Capability | Description |
 | --- | --- |
-| `events` | Event notifications (future use) |
-| `state` | App state snapshots (future use) |
+| `events` | Legacy local event notifications such as `ttsAmplitude` |
+| `state` | Reserved generic app state capability |
 | `integration.auth` | Access request flow is supported (available when user is signed in) |
 | `avatar.protocol.v1` | Authenticated avatar subscription and event protocol |
 
@@ -33,6 +33,8 @@ See per-capability details:
 - [Capability: State](/docs/public-api/local-websocket/capabilities-state)
 - [Capability: integration.auth](/docs/public-api/local-websocket/capabilities-integration-auth)
 - [Avatar Protocol v1](/docs/public-api/local-websocket/avatar-protocol)
+
+Avatar messages use the same JSON envelope. When an avatar subscription negotiates `binary-v1`, audio chunks are binary WebSocket messages instead; all handshake, subscription, lifecycle, prepared, completed, expression, action, and snapshot messages remain JSON.
 
 ## Message Types
 

@@ -3,27 +3,46 @@ title: Avatar Protocol v1
 type: docs
 weight: 60
 prev: /docs/public-api/local-websocket/capabilities-integration-auth
-next: /docs/public-api/rest
-description: Renderer-neutral local protocol for speech lifecycle, mouth animation, expressions, semantic actions, and recovery snapshots.
-summary: Subscribe to typed avatar animation profiles over the authenticated Desktop WebSocket.
+next: /docs/public-api/local-websocket/avatar-events
+description: Renderer-neutral protocol for speech lifecycle, mouth animation, expressions, semantic actions, audio, and recovery snapshots.
+summary: Authorize, negotiate, and consume typed avatar profiles over the Desktop WebSocket.
 ---
 
-`avatar.protocol.v1` publishes renderer-neutral animation intent over the existing authenticated local WebSocket. Unreal Engine is the first external validation target, but the protocol also supports browser, VRM, Live2D, Unity, Godot, and other adapters.
+`avatar.protocol.v1` carries synchronized avatar intent and optional TTS audio over the existing authenticated Desktop WebSocket. It is renderer-neutral: Unreal, browser avatars, VRM, Live2D, game engines, and physical avatars consume the same contract and keep rig-specific mappings locally.
 
-{{< callout context="info" title="Initial Desktop producer" >}}
-The Desktop producer supports `avatar.speech.lifecycle.v1`, `avatar.mouth.amplitude.v1`, `avatar.expression.vrm.v1`, and `avatar.action.semantic.v1`. Expressions, reaction actions, and physical gestures are emitted only when a structured speech plan matches the exact message and audio item. A known TTS tone supplies an expression fallback when no matching plan is available. Visemes and ARKit speech coefficients remain optional future v1 profiles.
-{{< /callout >}}
+## Runtime support
 
-## Baseline flow
+The current Desktop producer supports:
 
-1. Connect to `ws://127.0.0.1:51743` and send `hello`.
-2. Obtain or restore the `avatar.events.read` scope.
-3. Send `avatar.subscribe` with lifecycle and amplitude profiles.
-4. Receive `avatar.subscribed` followed immediately by `avatar.state.snapshot` with `deliverySequence: 1`.
-5. Drive the mouth only from the utterance's declared `activeSpeechDriver`.
-6. Request a new snapshot after a delivery gap or reconnect.
+| Profile | Current output |
+| --- | --- |
+| `avatar.speech.lifecycle.v1` | Prepared, started, paused, resumed, and ended utterances |
+| `avatar.mouth.amplitude.v1` | Normalized mouth opening synchronized to playback |
+| `avatar.expression.vrm.v1` | Portable semantic expression state |
+| `avatar.action.semantic.v1` | Portable and namespaced one-shot actions |
+| `avatar.audio.pcm-s16le.v1` | Mono signed 16-bit little-endian PCM |
+| `avatar.audio.opus.v1` | Mono raw Opus packets |
 
-## Subscribe
+The v1 contract also reserves `avatar.mouth.viseme-15.v1` and `avatar.mouth.arkit-speech.v1`. Desktop does not currently produce those profiles, so request them as optional and inspect `rejectedProfiles`.
+
+Expressions and speech actions are emitted only when their source can be correlated with the exact `utteranceId`, `sourceMessageId`, and `audioItemId`. The producer never guesses from text proximity or queue order.
+
+## Connection and authorization
+
+1. Connect to Desktop and send `hello`.
+2. Read `welcome.capabilities` and require `avatar.protocol.v1`.
+3. Restore or request `avatar.events.read`.
+4. Send `avatar.subscribe`.
+5. Read `avatar.subscribed` and use only its accepted and negotiated values.
+6. Apply the immediately following `avatar.state.snapshot` before processing live state.
+
+Use `ws://127.0.0.1:51743` on the Desktop computer. When the user enables Avatar LAN access, another device can discover `_ailicia-avatar._tcp.local` and connect to the advertised host and port. LAN connections expose only avatar authorization and avatar protocol messages.
+
+## Subscribe and negotiate
+
+Each profile has a `required` flag. An unsupported required profile rejects the complete subscription. Unsupported optional profiles appear in `rejectedProfiles`.
+
+This example prefers efficient Opus over binary frames, then falls back to PCM and JSON Base64:
 
 ```json
 {
@@ -34,18 +53,71 @@ The Desktop producer supports `avatar.speech.lifecycle.v1`, `avatar.mouth.amplit
     "profiles": [
       {"id": "avatar.speech.lifecycle.v1", "required": true},
       {"id": "avatar.mouth.amplitude.v1", "required": true},
-      {"id": "avatar.expression.vrm.v1", "required": false}
+      {"id": "avatar.expression.vrm.v1", "required": false},
+      {"id": "avatar.action.semantic.v1", "required": false},
+      {"id": "avatar.audio.opus.v1", "required": false},
+      {"id": "avatar.audio.pcm-s16le.v1", "required": false}
     ],
-    "speechDriverPreference": ["avatar.mouth.amplitude.v1"]
+    "speechDriverPreference": ["avatar.mouth.amplitude.v1"],
+    "audioTransportPreference": ["binary-v1", "json-base64"],
+    "audioFormatPreference": [
+      {
+        "profile": "avatar.audio.opus.v1",
+        "sampleRateHz": 48000,
+        "channels": 1,
+        "frameDurationMs": 20,
+        "bitrateBps": 24000
+      },
+      {
+        "profile": "avatar.audio.pcm-s16le.v1",
+        "sampleRateHz": 24000,
+        "channels": 1
+      }
+    ]
   }
 }
 ```
 
-The server rejects the complete subscription when a required profile is unsupported. Unsupported optional profiles are reported in `rejectedProfiles`.
+Preference arrays are ordered from most to least preferred. Every mouth profile requested by the client must appear exactly once in `speechDriverPreference`. Every audio format preference must refer to a requested audio profile.
 
-## Ordering
+The response identifies what the server selected:
 
-Every avatar event contains:
+```json
+{
+  "type": "avatar.subscribed",
+  "payload": {
+    "requestId": "sub-72c6f988",
+    "protocolVersion": 1,
+    "avatarSessionId": "avs_...",
+    "subscriptionId": "asub_...",
+    "acceptedProfiles": [
+      "avatar.speech.lifecycle.v1",
+      "avatar.mouth.amplitude.v1",
+      "avatar.expression.vrm.v1",
+      "avatar.action.semantic.v1",
+      "avatar.audio.opus.v1",
+      "avatar.audio.pcm-s16le.v1"
+    ],
+    "rejectedProfiles": [],
+    "audioTransport": "binary-v1",
+    "audioFormat": {
+      "profile": "avatar.audio.opus.v1",
+      "sampleRateHz": 48000,
+      "channels": 1,
+      "frameDurationMs": 20,
+      "bitrateBps": 24000
+    }
+  }
+}
+```
+
+If audio preferences are omitted, the server may select a compatible source PCM format. `avatar.audio.prepared` is the authoritative per-stream description, so consumers must read it even when `avatar.subscribed.audioFormat` is present.
+
+See [Avatar Audio](/docs/public-api/local-websocket/avatar-audio) for format and binary framing details.
+
+## Ordering and identity
+
+Every JSON avatar event contains:
 
 ```json
 {
@@ -57,40 +129,19 @@ Every avatar event contains:
 }
 ```
 
-`deliverySequence` is scoped to one subscription and increments only for events delivered to that subscription. Events filtered out by profile selection do not consume a number. A changed `avatarSessionId` invalidates earlier transient state.
+`deliverySequence` belongs to one subscription and is assigned after authorization and profile filtering. A gap means a delivered event was missed. With `binary-v1`, binary audio chunks consume sequence numbers too. A client that observes only JSON messages will therefore see expected gaps and must process binary frames as part of the same sequence.
 
-## Profiles
-
-| Profile | Purpose |
-| --- | --- |
-| `avatar.speech.lifecycle.v1` | Preparation, playback, pause, resume, and end state |
-| `avatar.mouth.amplitude.v1` | Normalized real-time mouth opening |
-| `avatar.mouth.viseme-15.v1` | Optional portable timed viseme timeline |
-| `avatar.mouth.arkit-speech.v1` | Optional ARKit-named mouth and jaw coefficients |
-| `avatar.expression.vrm.v1` | Optional renderer-neutral semantic expression state |
-| `avatar.action.semantic.v1` | Optional one-shot semantic animation triggers |
-
-Exactly one mouth profile is the active speech driver for an utterance. Renderers must not apply amplitude, visemes, and ARKit speech frames simultaneously.
-
-## Speech performance
-
-When a structured speech plan matches the exact message, Desktop maps its dominant delivery to a portable semantic expression. The expression source is `speech_delivery` and carries the exact `utteranceId`, `sourceMessageId`, `audioItemId`, source segment index, and mapping version.
-
-A reaction or physical gesture at the beginning of the utterance may also emit one one-shot semantic action. Audible reactions use a `speech_reaction` source. Silent gestures use a `speech_gesture` source with one of `wink`, `nod`, `shake_head`, or `rage`. The source carries the same exact utterance, message, audio item, segment, and mapping identities.
-
-One opening segment cannot request both a reaction and a gesture. Cues in later segments are not approximated because they require aligned TTS cue timing before they can be emitted reliably. Standard action identifiers such as `nod` and `shake_head` are portable. Renderer-specific additions such as `ai.licia/wink` and `ai.licia/rage` are namespaced and may be ignored by renderers that do not implement them.
-
-Raw provider tags, model tone strings, Unreal asset names, and robot commands are never exposed as protocol identifiers. Every renderer keeps those mappings locally.
+`utteranceId` joins speech, mouth, expression, action, and audio events for one playback. `audioItemId` joins the audio stream and exact TTS queue item. A changed `avatarSessionId` invalidates earlier transient state.
 
 ## Timing
 
-Speech events use audio-relative integer millisecond offsets. On `started` or `resumed`, record a local monotonic timestamp and advance from the supplied `playbackOffsetMs`. `emittedAtMs` is diagnostic wall-clock time and is not the animation clock.
+Speech and mouth events use audio-relative integer millisecond offsets. On `avatar.speech.started` or `avatar.speech.resumed`, record a local monotonic timestamp and advance from the supplied `playbackOffsetMs`. `emittedAtMs` is diagnostic wall-clock time, not the animation clock.
 
-The v1 playback rate is fixed at `1.0`. Late samples are discarded or evaluated at their current timeline position; renderers must not speed up animation to catch up.
+The v1 playback rate is `1.0`. Evaluate late samples at the current audio-relative position or discard them. Do not accelerate animation to catch up.
 
 ## Recovery
 
-Send `avatar.get_state` with the active `subscriptionId` after a sequence gap:
+Desktop sends `avatar.state.snapshot` immediately after a successful subscription. Request another snapshot after reconnecting or detecting a delivery gap:
 
 ```json
 {
@@ -103,20 +154,38 @@ Send `avatar.get_state` with the active `subscriptionId` after a sequence gap:
 }
 ```
 
-The returned snapshot uses the next contiguous delivery sequence. A playing snapshot re-anchors the receiver clock when it is received.
+The snapshot uses the next delivery sequence for that subscription. A playing snapshot re-anchors the local playback clock when received. It includes persistent expression state but never replays transient semantic actions.
 
-## Typed contract and simulator
+## Subscription errors
 
-The `ai_licia-client` package exports the complete TypeScript contract, runtime validators, and generated JSON Schemas:
+Subscription failures use `avatar.subscription_error`:
 
-- `schema/avatar-protocol.v1.schema.json`
-- `schema/avatar-integration-auth.v1.schema.json`
-- `validateAvatarProtocolMessage`
-- `validateAvatarProtocolSequence`
-- `LocalWebSocketClient`
+```json
+{
+  "type": "avatar.subscription_error",
+  "payload": {
+    "requestId": "sub-72c6f988",
+    "code": "required_profile_unsupported",
+    "message": "Required profile avatar.mouth.viseme-15.v1 is not supported.",
+    "profileId": "avatar.mouth.viseme-15.v1"
+  }
+}
+```
 
-The source repository also includes a local WebSocket simulator on `ws://127.0.0.1:51744` for adapter development before connecting to Desktop.
+Codes are `not_authorized`, `invalid_request`, `unsupported_protocol_version`, `required_profile_unsupported`, and `internal_error`.
 
-## StackChan factory-firmware example
+## Typed contract
 
-The [`examples/stackchan-adapter`](https://github.com/novasquare-ailicia/ai_licia-core/tree/main/examples/stackchan-adapter) example consumes the same protocol and controls a stock M5Stack StackChan over BLE. It supports simulated output, mouth amplitude, expression geometry, side LEDs, conservative semantic head movements, Wink, Nod, Shake Head, and Rage without flashing custom firmware. The factory mouth can open, move, and rotate but cannot curve into a smile, so Happy is expressed through its eyes, lighting, and posture.
+The [`ai_licia-client`](https://github.com/novasquare-ailicia/ai_licia-core/tree/main/packages/ai_licia-client) package is the machine-readable authority. It exports TypeScript discriminated unions, `LocalWebSocketClient`, binary audio decoding, runtime validators, and these schemas:
+
+- [`avatar-protocol.v1.schema.json`](https://github.com/novasquare-ailicia/ai_licia-core/blob/main/packages/ai_licia-client/schema/avatar-protocol.v1.schema.json)
+- [`avatar-integration-auth.v1.schema.json`](https://github.com/novasquare-ailicia/ai_licia-core/blob/main/packages/ai_licia-client/schema/avatar-integration-auth.v1.schema.json)
+- [`avatar-protocol.v1.fixtures.json`](https://github.com/novasquare-ailicia/ai_licia-core/blob/main/packages/ai_licia-client/schema/avatar-protocol.v1.fixtures.json)
+
+Run `npm run simulator:avatar` in that repository for a deterministic baseline, expression, action, and JSON PCM stream at `ws://127.0.0.1:51744`. Use Desktop for live Opus and binary delivery testing.
+
+## Adapter boundary
+
+Protocol identifiers describe portable intent, not renderer assets. Map expressions to morph targets, semantic actions to animations, and mouth drivers to the local rig inside the adapter. Do not interpret raw tone strings as asset names or apply amplitude, visemes, and ARKit speech coefficients simultaneously.
+
+The [`examples/stackchan-adapter`](https://github.com/novasquare-ailicia/ai_licia-core/tree/main/examples/stackchan-adapter) example consumes this same protocol for a physical avatar. Unreal, VRM, Live2D, and browser integrations should follow the same boundary.

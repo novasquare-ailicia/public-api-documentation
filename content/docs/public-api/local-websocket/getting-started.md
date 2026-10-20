@@ -8,8 +8,10 @@ description: Connect to the local WebSocket, request scoped consent, and restore
 summary: Step-by-step handshake for REST, Vision, and avatar integrations using the dashboard WebSocket.
 ---
 
-## 1) Connect locally
-The dashboard app listens on `ws://127.0.0.1:51743` by default (configurable via `INTEGRATION_WS_PORT`).
+## 1) Connect
+On the same computer, Desktop listens on `ws://127.0.0.1:51743` by default (configurable via `INTEGRATION_WS_PORT`).
+
+For another device on the same network, the user must enable Avatar LAN access in Desktop. Discover `_ailicia-avatar._tcp.local` with mDNS and connect to the advertised host and port using `ws://`. LAN clients can request only `avatar.events.read`; REST and Vision messages are rejected.
 
 ## 2) Send `hello`
 Identify your app and declare the client type:
@@ -40,7 +42,7 @@ The server responds with supported capabilities. `integration.auth` is present w
 ```
 
 ## 4) Request access
-Send only the scopes you need. Use `rest.full` for the public REST API or `avatar.events.read` for avatar animation events.
+Send only the scopes you need. Use `rest.full` for the public REST API or `avatar.events.read` for avatar animation state and optional TTS audio.
 
 ```json
 {
