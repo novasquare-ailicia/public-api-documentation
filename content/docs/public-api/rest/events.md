@@ -48,26 +48,41 @@ Blend multiple facts (within the 1,000-character limit) to give ai_licia plenty 
 
 ## POST /v1/events (context ingestion) {#post-v1-events}
 
-Feed ai_licia structured text so she can weave it into future replies.
+Feed ai_licia a complete current snapshot. Sending context does not force an immediate response.
 
-**Typical payloads**
-- Live game telemetry: `"Altitude 18 ft, heading 304, speed 5 knots"`
-- Production notes: `"New sponsor goal unlocked, remind chat about the giveaway"`
-- IRL trackers: `"Heart rate 120 bpm, say I'm sprinting"`
+> **Upcoming:** `INTEGRATION_STATE` requires the new backend rollout. Existing `GAME_EVENT` requests remain compatible. The new SDK helpers below require the next client release.
+
+Context is assembled into two independent blocks:
+
+| `eventType` | Replacement behaviour |
+| --- | --- |
+| `GAME_EVENT` | One game snapshot per channel. Every call replaces the entire game block. Use one active game integration. |
+| `INTEGRATION_STATE` | One snapshot per `data.sourceId`. A call replaces only that source; active sources are combined into a separate integration block. |
+
+For example, an OBS update leaves Lumia, Spotify and the current game intact. A new game snapshot leaves every integration entry intact. Integration payloads are complete replacements, not patches or event histories.
 
 **Request**
+
 - Method/Path: `POST /v1/events`
 - Headers: `Authorization: Bearer <API_KEY>`, `Content-Type: application/json`
 - Body:
-  - `eventType` (string): categorize the event (e.g. `GAME_EVENT`, `IRL_EVENT`)
-  - `data.channelName` (string): channel tied to your API key
-  - `data.content` (string, max 1,000 chars): the context snippet
-  - `data.ttl` (optional integer): auto-expire after X seconds
+  - `eventType`: `GAME_EVENT` or `INTEGRATION_STATE`. `IRL_EVENT` is not supported.
+  - `data.channelName`: channel tied to your API key.
+  - `data.content`: the complete snapshot, max 1,000 characters.
+  - `data.sourceId`: required only for `INTEGRATION_STATE`. Use a stable identifier such as `obs`, `lumia` or `spotify`. It must match `[a-z0-9][a-z0-9._-]{0,63}`. IDs are case-sensitive and scoped to the authenticated channel; using the same ID intentionally replaces that entry. IDs identify context entries and do not grant separate access permissions.
+  - `data.ttl`: validity in seconds. For integrations, an integer from 1 to 86,400, default 60 if omitted or null. Every update refreshes only its own expiry. For the existing game type, omitted or null TTL retains its existing non-expiring behaviour.
+
+Refresh before expiry while connected. To disconnect, send the same type and source ID with empty `content`; this removes only that integration entry. Empty game content clears only the game block. Whitespace-only integration content also clears the entry.
+
+The integration block retains up to **eight active sources**. An update to an existing source does not use another slot. Expired sources are removed first; adding a ninth active source removes the least recently updated entry. This bounds the total context supplied to the model. Entries belong to the active AI session and survive worker relocation; integrations should resend their snapshot after a new session starts. Context ingestion is not a durable memory API.
 
 **Responses**
-- `200 OK` — ingested
-- `401 Unauthorized` — missing/invalid key
-- `422 Unprocessable Entity` — content too long
+
+- `200 OK`: ingested; no immediate reaction is requested.
+- `401 Unauthorized`: missing/invalid key or channel mismatch.
+- `422 Unprocessable Entity`: content too long, missing/invalid integration source ID, integration TTL outside the accepted range, or `sourceId` supplied for `GAME_EVENT`.
+
+Game snapshot:
 
 ```bash
 curl -X POST https://api.getailicia.com/v1/events \
@@ -77,15 +92,44 @@ curl -X POST https://api.getailicia.com/v1/events \
     "eventType": "GAME_EVENT",
     "data": {
       "channelName": "mychannel",
-      "content": "Squad reached Zone 3 with 2 medkits left; weather turning to storm."
+      "content": "Day 12, raining. Player at the farm with 80 energy.",
+      "ttl": 60
     }
   }'
-'
 ```
+
+Independent integration snapshot:
+
+```json
+{
+  "eventType": "INTEGRATION_STATE",
+  "data": {
+    "channelName": "mychannel",
+    "sourceId": "obs",
+    "content": "Streaming. Current scene: Gameplay.",
+    "ttl": 60
+  }
+}
+```
+
+Disconnect OBS without clearing the game or other integrations:
+
+```json
+{
+  "eventType": "INTEGRATION_STATE",
+  "data": {
+    "channelName": "mychannel",
+    "sourceId": "obs",
+    "content": ""
+  }
+}
+```
+
+Keep `GAME_EVENT` for games. Migrate existing non-game callers to `INTEGRATION_STATE` with a stable source ID. Clients that continue sending `GAME_EVENT` still replace the single game block.
 
 ## POST /v1/events/generations (force a reply) {#post-v1-events-generations}
 
-Request a specific reaction when you need ai_licia to speak now.
+Request a specific reaction when you need ai_licia to speak now. This endpoint continues to accept `GAME_EVENT` only; `INTEGRATION_STATE` belongs on `/v1/events` and is rejected here with `422`. Generations do not replace either context block.
 
 **Great for**
 - Channel point rewards that demand a shout-out.

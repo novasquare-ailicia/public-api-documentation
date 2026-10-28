@@ -19,7 +19,9 @@ summary: Methods, streams, and env vars at a glance.
 
 | Method | Purpose |
 | --- | --- |
-| `sendEvent(content, ttl?)` | Send contextual data via REST. |
+| `sendEvent(content, ttl?)` | Replace the single game context. |
+| `sendIntegrationState(sourceId, content, ttl?)` | Replace one source in the integration block (upcoming SDK/backend release). |
+| `clearIntegrationState(sourceId)` | Remove only that integration source (upcoming SDK/backend release). |
 | `triggerGeneration(content, options?)` | Trigger an immediate AI response, optionally selecting `STANDARD` or `FAST`, TTS delivery, and a generation TTL. |
 | `listCharacters()` | List characters available to the authenticated streamer. |
 | `setActiveCharacter(characterId)` | Set the active character for the streamer. |

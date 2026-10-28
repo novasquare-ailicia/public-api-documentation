@@ -61,7 +61,7 @@ Quick jump:
 | `channel.go_live` | Channel went live. | sentDateTime |
 | `channel.go_offline` | Channel went offline. | sentDateTime |
 | `ai.moderation` | AI-authored message moderation result. | messageId, username, originalMessage, isAppropriate, categoriesScore, moderationEnabled, sentDateTime |
-| `api.event` | Custom public event sent via the API. | eventType, content, shouldGenerate, ttl, expiresAt |
+| `api.event` | Custom public event sent via the API. | eventType, sourceId, content, shouldGenerate, ttl, expiresAt |
 | `system.join` | AI joined the channel. | channelId, channelName, sentDateTime |
 | `system.left` | AI left the channel. | channelId, channelName, sentDateTime |
 | `character.updated` | Active character changed. | characterId, displayName, sentDateTime |
@@ -296,7 +296,8 @@ SSE `event` equals the `type` field in the envelope (e.g. `chat.message`).
 ```
 
 ### api.event
-- `eventType`: public event type  
+- `eventType`: `GAME_EVENT` or, after the upcoming backend rollout, `INTEGRATION_STATE`
+- `sourceId`: stable integration source for `INTEGRATION_STATE` updates
 - `content`: event payload content  
 - `shouldGenerate`: whether AI should react  
 - `ttl`: optional time-to-live in seconds  
@@ -309,7 +310,7 @@ SSE `event` equals the `type` field in the envelope (e.g. `chat.message`).
   "timestamp": "2025-02-18T21:18:00Z",
   "channel": { "id": "ch_123", "name": "mychannel", "platform": "TWITCH" },
   "payload": {
-    "eventType": "CUSTOM_CALLOUT",
+    "eventType": "GAME_EVENT",
     "content": "Boss phase 2 is starting.",
     "shouldGenerate": true,
     "ttl": 300,

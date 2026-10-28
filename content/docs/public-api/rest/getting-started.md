@@ -12,6 +12,8 @@ description: Step-by-step guide for authenticating, sending your first context e
 2) Add the header: `Authorization: Bearer <API_KEY>`.  
 3) Choose an action: send context (`/v1/events`), trigger a reaction (`/v1/events/generations`), list/activate characters, or have ai_licia join/leave your chat.
 
+`GAME_EVENT` replaces the current game snapshot. For the upcoming source-based integration context API, see [replacement and expiry rules](/docs/public-api/rest/events#post-v1-events).
+
 ## First request (ingest an event)
 
 ```bash

@@ -601,21 +601,62 @@ components:
           enum: [INVALID_REQUEST, NOT_FOUND, UNAUTHORIZED, CONFLICT, RATE_LIMITED, DESKTOP_UNAVAILABLE]
         message: {type: string}
     Event:
-      required:
-        - eventType
-        - data
-      type: object
-      properties:
+      description: Context ingestion. INTEGRATION_STATE is upcoming and requires the new backend rollout.
+      oneOf:
+        - $ref: '#/components/schemas/GameContextEvent'
+        - $ref: '#/components/schemas/IntegrationStateEvent'
+      discriminator:
+        propertyName: eventType
+        mapping:
+          GAME_EVENT: '#/components/schemas/GameContextEvent'
+          INTEGRATION_STATE: '#/components/schemas/IntegrationStateEvent'
 
+    GameContextEvent:
+      type: object
+      required: [eventType, data]
+      properties:
+        eventType:
+          type: string
+          enum: [GAME_EVENT]
         data:
           $ref: '#/components/schemas/EventContent'
 
-
+    IntegrationStateEvent:
+      type: object
+      required: [eventType, data]
+      properties:
         eventType:
           type: string
-          description: Type of the event sent
-          enum:
-            - GAME_EVENT
+          enum: [INTEGRATION_STATE]
+        data:
+          $ref: '#/components/schemas/IntegrationStateContent'
+
+    IntegrationStateContent:
+      type: object
+      required: [channelName, content, sourceId]
+      properties:
+        channelName:
+          type: string
+          description: Channel tied to the authenticated API key.
+        sourceId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: '^[a-z0-9][a-z0-9._-]{0,63}$'
+          example: obs
+          description: Stable source identity within the channel. Updating this ID replaces only its entry.
+        content:
+          type: string
+          maxLength: 1000
+          description: Complete source snapshot. Empty or whitespace-only text clears only this source.
+        ttl:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 86400
+          default: 60
+          nullable: true
+          description: Independent source expiry in seconds. Null or omitted uses 60. Up to eight active sources are retained; a ninth evicts the least recently updated.
 
     EventContent:
       required:
@@ -1303,6 +1344,10 @@ components:
       properties:
         eventType:
           type: string
+        sourceId:
+          type: string
+          nullable: true
+          description: Stable integration source for INTEGRATION_STATE updates.
         content:
           type: string
         shouldGenerate:

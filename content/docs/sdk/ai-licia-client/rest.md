@@ -8,20 +8,28 @@ description: Send contextual events and trigger generations via REST.
 summary: sendEvent and triggerGeneration examples with optional channel helpers.
 ---
 
-## Send contextual events
+## Send game state
 
-Enrich ai_licia's context (max 1,000 chars). Does not force an immediate response.
-
-```ts {filename="send-event.ts"}
-await client.sendEvent('Player health: 85%, Position: X:145 Y:230, Kills: 12');
-await client.sendEvent('Current song: Never Gonna Give You Up');
-```
-
-With TTL (seconds):
+`sendEvent` replaces the single current game snapshot (max 1,000 characters). Use one active game integration. It does not force an immediate response.
 
 ```ts
-await client.sendEvent('Lights: blue', 300);
+await client.sendEvent('Day 12, raining. Player at the farm.', 60);
 ```
+
+## Send integration state
+
+> **Upcoming:** these helpers require the next SDK release and the new backend rollout.
+
+Each stable source replaces only its own entry. Entries are combined in a separate integration block; they do not overwrite game state.
+
+```ts
+await client.sendIntegrationState('obs', 'Streaming. Scene: Gameplay.', 60);
+await client.sendIntegrationState('lumia', 'Lights: purple.', 120);
+await client.sendIntegrationState('spotify', 'Current track: Example song.');
+await client.clearIntegrationState('obs');
+```
+
+Source IDs match `[a-z0-9][a-z0-9._-]{0,63}`. Each payload is at most 1,000 characters. Integration TTL defaults to 60 seconds and accepts integers from 1 to 86,400. Refresh while connected and clear on disconnect. Up to eight sources are retained; the least recently updated is removed if a ninth active source is added. See [context replacement and expiry](/docs/public-api/rest/events#post-v1-events).
 
 ## Trigger a reaction
 
