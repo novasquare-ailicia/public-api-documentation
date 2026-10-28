@@ -74,7 +74,7 @@ For example, an OBS update leaves Lumia, Spotify and the current game intact. A 
 
 Refresh before expiry while connected. To disconnect, send the same type and source ID with empty `content`; this removes only that integration entry. Empty game content clears only the game block. Whitespace-only integration content also clears the entry.
 
-The integration block retains up to **eight active sources**. An update to an existing source does not use another slot. Expired sources are removed first; adding a ninth active source removes the least recently updated entry. This bounds the total context supplied to the model. Entries belong to the active AI session and survive worker relocation; integrations should resend their snapshot after a new session starts. Context ingestion is not a durable memory API.
+The integration block retains up to **sixteen active sources**. An update to an existing source does not use another slot. Expired sources are removed first; adding a seventeenth active source removes the least recently updated entry. This bounds the total context supplied to the model. Entries belong to the active AI session and survive worker relocation; integrations should resend their snapshot after a new session starts. Context ingestion is not a durable memory API.
 
 **Responses**
 

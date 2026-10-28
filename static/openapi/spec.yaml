@@ -656,7 +656,7 @@ components:
           maximum: 86400
           default: 60
           nullable: true
-          description: Independent source expiry in seconds. Null or omitted uses 60. Up to eight active sources are retained; a ninth evicts the least recently updated.
+          description: Independent source expiry in seconds. Null or omitted uses 60. Up to sixteen active sources are retained; a seventeenth evicts the least recently updated.
 
     EventContent:
       required:

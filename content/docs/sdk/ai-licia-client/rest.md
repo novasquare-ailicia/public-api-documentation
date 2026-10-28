@@ -29,7 +29,7 @@ await client.sendIntegrationState('spotify', 'Current track: Example song.');
 await client.clearIntegrationState('obs');
 ```
 
-Source IDs match `[a-z0-9][a-z0-9._-]{0,63}`. Each payload is at most 1,000 characters. Integration TTL defaults to 60 seconds and accepts integers from 1 to 86,400. Refresh while connected and clear on disconnect. Up to eight sources are retained; the least recently updated is removed if a ninth active source is added. See [context replacement and expiry](/docs/public-api/rest/events#post-v1-events).
+Source IDs match `[a-z0-9][a-z0-9._-]{0,63}`. Each payload is at most 1,000 characters. Integration TTL defaults to 60 seconds and accepts integers from 1 to 86,400. Refresh while connected and clear on disconnect. Up to sixteen sources are retained; the least recently updated is removed if a seventeenth active source is added. See [context replacement and expiry](/docs/public-api/rest/events#post-v1-events).
 
 ## Trigger a reaction
 
